@@ -156,13 +156,7 @@ predict_spread <- function(bed_slope_angle = 0,
   #colnames(xrep) <- x_axis_vars
  # xparamnames <- names(x_axis_vars)
   xcolnum <- which(paramNames == xvar)
-  # xcolnum <- 1
-  min_degrees <- 0
-  max_degrees <- 30
-  numerator <- bed_slope_angle - min_degrees
-  denominator <- max_degrees - min_degrees
-  degrees.scale <- numerator / denominator
-  
+
   tempxvals <- seq(min_x_vec[xcolnum], max_x_vec[xcolnum], length = npoints)
   xrep[,xcolnum] <- tempxvals
   nreps <- length(levseq)
@@ -197,6 +191,7 @@ predict_spread <- function(bed_slope_angle = 0,
   #xrep[,xcolnum] <- seq(0, 30, length = 10)
   
   #print(xrep[,xcolnum])
+  colnames(xrep.all) <- paramNames.verbose
   pred.output <- nmc %>% predict(xrep.all)
   #pred.output <- nmc %>% predict(x)
   
@@ -241,8 +236,8 @@ predict_spread <- function(bed_slope_angle = 0,
   
   ###For debugging purposes
   fout <- ("debug.txt")
-  outmat.debug <- cbind(tempxvals, rep(temp.levs.x[1], length(tempxvals)), ycolmat[,1])
-  write.table(outmat.debug, fout, col.names = c(xparamnames[xcolnum], xparamnames[levcolum], yNames[ycolnum]), quote = F, row.names = FALSE)
+  outmat.debug <- cbind(xrep.all, ycolmat[,1])
+  write.table(outmat.debug, fout, quote = F, row.names = FALSE)
   return(outlist)
 }
 
