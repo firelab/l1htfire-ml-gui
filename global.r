@@ -45,3 +45,53 @@ xparamnames <- paramNames[1:13]
 
 
 yNames <- c("ros", "fzd", "flamelength")
+
+min_bed_slope_angle <- 0
+max_bed_slope_angle <- 30
+min_bed_width <-  1
+max_bed_width <- 50
+min_fuel_clump_size <- 0.5
+max_fuel_clump_size <- 2
+min_fuel_depth <- 0.05
+max_fuel_depth <-  1 
+min_fuel_gap_size <- 0.1
+max_fuel_gap_size <- 0.5
+min_fuel_loading <- 0.05
+max_fuel_loading <- 3
+min_ignition_depth <- 0.1
+max_ignition_depth  <- 4
+min_particle_diameter <- 0.001
+max_particle_diameter <- 0.005
+min_particle_moisture <- 2
+max_particle_moisture<- 35
+min_wind_amplitude_rel_mean  <- 0.2
+max_wind_amplitude_rel_mean  <- 1
+min_wind_mean <- 1
+max_wind_mean <- 10
+min_wind_period <- 1
+max_wind_period  <- 5
+
+ycolnames <- c( "ros", "fzd", "flength")
+ycolnames.verbose <- c( "Rate of Spread", "Flame Zone Depth", "Flame Length")
+
+
+
+
+paramNames.verbose <- c("Bed Slope Angle",
+                        "Bed Width", 
+                        "Fuel Clump Size",
+                        "Fuel Depth",
+                        "Fuel Gap Size",
+                        "Fuel Loading",
+                        "Ignition Depth",
+                        "Particle Diameter",
+                        "Particle Moisture",
+                        "Wind Amplitude",
+                        "Mean Wind Speed", 
+                        "Wind Period",
+                        "Wind Type")
+
+
+nlevs <- 5
+npoints <- 100
+

@@ -27,21 +27,21 @@ ui<-fluidPage(
           selectInput("yvar", "Y-axis variable", y_axis_vars, width = "50%",  selected = "ros"),
           
           column(width = 5, offset = 0,
-                 sliderInput("bed_slope_angle", "Bed Slope Angle (in Degrees):", min = 0, max = 30, value = 15),
-                 sliderInput("bed_width", "Bed width (meters) :", min = 1, max = 50, value = 25, step = 1),
-                 sliderInput( "fuel_clump_size", "Fuel Clump Size (meters) :", min = 0.5, max = 2.0, value =1.0, step = 0.1),
-                 sliderInput( "fuel_depth", "Fuel Depth (meters)", min = 0.05, max = 1, value = 0.5, step = 0.05),
-                 sliderInput( "fuel_gap_size", "Fuel Gap Size (meters) :", min = 0.1, max = 0.5, value =0.15, step = 0.01),
-                 sliderInput("fuel_loading", "Fuel Loading (kg/m^3)", min = 0.050, max = 3.0, value = 1.0, step = 0.01)
+                 sliderInput("bed_slope_angle", "Bed Slope Angle (in Degrees):", min = min_bed_slope_angle, max = max_bed_slope_angle,  value = 15),
+                 sliderInput("bed_width", "Bed width (meters) :", min = min_bed_width, max = max_bed_width, value = 25, step = 1),
+                 sliderInput( "fuel_clump_size", "Fuel Clump Size (meters) :", min = min_fuel_clump_size, max = max_fuel_clump_size, value =1.0, step = 0.1),
+                 sliderInput( "fuel_depth", "Fuel Depth (meters)", min = min_fuel_depth, max = max_fuel_depth, value = 0.5, step = 0.05),
+                 sliderInput( "fuel_gap_size", "Fuel Gap Size (meters) :", min = min_fuel_gap_size, max =max_fuel_gap_size, value =0.15, step = 0.01),
+                 sliderInput("fuel_loading", "Fuel Loading (kg/m^3)", min = min_fuel_loading, max = max_fuel_loading, value = 1.0, step = 0.01)
                  
           ),
           column(width = 6, offset =  0,
-                 sliderInput("ignition_depth", "Ignition Depth (meters)", min = 0.1, max = 4.0, value = 1.0, step = 0.01),
-                 sliderInput("particle_diameter", "Particle Diameter (meters):", min = 0.001, max = .005, value = .0035, step = 0.0005),
-                 sliderInput("particle_moisture", "Particle Moisture (%)", min = 2, max = 35, value = 2, step = 0.5),
-                 sliderInput("wind_amplitude_rel_mean", "Wind Amplitude rel. to mean (%)", min = 0.2, max = 1, value = 1.0, step = 0.01),
-                 sliderInput("wind_mean", "Mean Wind Speed (m/s)", min = 1, max = 10, value = 3.0, step = 0.1),
-                 sliderInput("wind_period", "Wind Period (s)", min = 1, max = 5, value = 3.0, step = 0.1),
+                 sliderInput("ignition_depth", "Ignition Depth (meters)", min = min_ignition_depth, max = max_ignition_depth, value = 1.0, step = 0.01),
+                 sliderInput("particle_diameter", "Particle Diameter (meters):", min = min_particle_diameter, max = max_particle_diameter, value = .0035, step = 0.0005),
+                 sliderInput("particle_moisture", "Particle Moisture (%)", min = min_particle_moisture, max = max_particle_moisture, value = 2, step = 0.5),
+                 sliderInput("wind_amplitude_rel_mean", "Wind Amplitude rel. to mean (%)", min = min_wind_amplitude_rel_mean, max = max_wind_amplitude_rel_mean, value = 1.0, step = 0.01),
+                 sliderInput("wind_mean", "Mean Wind Speed (m/s)", min = min_wind_mean, max = max_wind_mean, value = 3.0, step = 0.1),
+                 sliderInput("wind_period", "Wind Period (s)", min = min_wind_period, max = max_wind_period, value = 3.0, step = 0.1),
                  sliderInput("wind_type", "Sine => 1, else 0", min = 0, max = 1, value = 0, step =1),
                  
           )

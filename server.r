@@ -7,8 +7,12 @@ library(keras)
 #                 "n_sim")
 
 #use_virtualenv("G:\\tensorflow\\venv")
-#use_virtualenv("~/.virtualenvs/spreadenv/Scripts/python.exe")
+#use_virtualenv("~/.virtualenvs/spreadenv/")
 #use_virtualenv("C:\\Users\\Isaac Grenfell\\Documents\\.virtualenvs\\r-reticulate")
+#use_virtualenv("C:\\Users\\Isaac Grenfell\\Documents\\.virtualenvs\\r-tensorflow")
+#use_virtualenv("C:\\Users\\Isaac Grenfell\\Documents\\.virtualenvs\\spreadenv")
+#use_virtualenv("C:\\Users\\Isaac Grenfell\\Documents\\.virtualenvs\\spreadgui")
+
 #setwd("I:\\workspace\\spread-model\\modelProtocolBuffers")
 
 #setwd("G:\\tensorflow\\modelProtocolBuffers")
@@ -23,8 +27,7 @@ library(keras)
 new_model_combined <- load_model_tf('modelProtocolBuffers/combined', compile = FALSE)
 
 nmc <- compile(new_model_combined)
-ycolnames <- c( "ros", "fzd", "flength")
-ycolnames.verbose <- c( "Rate of Spread", "Flame Zone Depth", "Flame Length")
+
 # 
 # paramNames <- c("bed_slope_angle", "bed_width", "fuel_depth",
 #                 "fuel_loading", "ignition_depth", "particle_diameter", "particle_moisture",
@@ -32,24 +35,6 @@ ycolnames.verbose <- c( "Rate of Spread", "Flame Zone Depth", "Flame Length")
 
 
 
-paramNames.verbose <- c("Bed Slope Angle",
-                        "Bed Width", 
-                        "Fuel Clump Size",
-                        "Fuel Depth",
-                        "Fuel Gap Size",
-                        "Fuel Loading",
-                        "Ignition Depth",
-                        "Particle Diameter",
-                        "Particle Moisture",
-                        "Wind Amplitude",
-                        "Mean Wind Speed", 
-                        "Wind Period",
-                        "Wind Type",
-                        
-                        "xvar", "yvar")
-
-nlevs <- 5
-npoints <- 100
 
 # ###For testing
 # bed_slope_angle = 0
@@ -87,6 +72,13 @@ predict_spread <- function(bed_slope_angle = 0,
                            xvar = "bed_slope_angle", yvar  = "ros", levvar ="bed_width" )
 {
   
+  if(wind_type == 0)
+  {
+    wind_amplitude_rel_mean <- 0
+    wind_period  <- 0
+    
+  }
+  
   
   predvec.raw  <- c(bed_slope_angle,
                     bed_width,
@@ -109,95 +101,34 @@ predict_spread <- function(bed_slope_angle = 0,
   #-------------------------------------
   # Inputs
   #-------------------------------------
-  #Normalizing slope 
-  min_degrees <- 0
-  max_degrees <- 30
-  numerator <- bed_slope_angle - min_degrees
-  denominator <- max_degrees - min_degrees
-  degrees.scale <- numerator / denominator
-  
-  #Normalizing bed_width 
-  min_bed_width <-  1
-  max_bed_width <- 50
-  numerator <- bed_width - min_bed_width
-  denominator <- max_bed_width - min_bed_width
-  bed_width.scale <- numerator / denominator
-  #Normalizing fuel_depth 
-  min_fuel_depth <- 0.05
-  max_fuel_depth <-  1 
-  numerator <- fuel_depth - min_fuel_depth
-  denominator <- max_fuel_depth - min_fuel_depth
-  fuel_depth.scale <- numerator / denominator
-  #Normalizing fuel_loading 
-  min_fuel_loading <- 0.05
-  max_fuel_loading <- 3
-  numerator <- fuel_loading -min_fuel_loading
-  denominator <- 3 - min_fuel_loading
-  fuel_loading.scale <- numerator / denominator
-  #Normalizing ignition_depth 
-  min_ignition_depth <- 0.1
-  max_ignition_depth  <- 4
-  numerator <- ignition_depth - min_ignition_depth
-  denominator <- max_ignition_depth - min_ignition_depth
-  ignition_depth.scale <- numerator / denominator
-  #Normalizing particle_diameter 
-  min_particle_diameter <- 0.001
-  max_particle_diameter <- 0.005
-  numerator <- particle_diameter - min_particle_diameter
-  denominator <- max_particle_diameter - min_particle_diameter
-  particle_diameter.scale <- numerator / denominator
-  #Normalizing particle_moisture 
-  min_particle_moisture <- 2
-  max_particle_moisture<- 35
-  numerator <- particle_moisture - min_particle_moisture
-  denominator <- max_particle_moisture - min_particle_moisture
-  particle_moisture.scale <- numerator / denominator
-  #Normalizing wind_mean 
-  min_wind_speed <- 1
-  max_wind_speed <- 10
-  numerator <- wind_mean - min_wind_speed
-  denominator <- max_wind_speed - min_wind_speed
-  wind_mean.scale <- numerator / denominator
-  
-  min_clump_size <- 0.5
-  max_clump_size <- 2
-  
-  min_gap_size <- 0.1
-  max_gap_size <- 0.5
-  
-  min_wind_amp  <- 0.2
-  max_wind_amp  <- 1
-  min_wind_period <- 1
-  max_wind_period  <- 5
 
-  
-  
-  min_x_vec <- c(min_degrees, 
+
+  min_x_vec <- c(min_bed_slope_angle, 
                  min_bed_width, 
-                 min_clump_size,
-                 min_gap_size,
+                 min_fuel_clump_size,
                  min_fuel_depth, 
+                 min_fuel_gap_size,
                  min_fuel_loading, 
                  min_ignition_depth, 
                  min_particle_diameter, 
                  min_particle_moisture, 
-                 min_wind_amp,
-                 min_wind_speed,
+                 min_wind_amplitude_rel_mean,
+                 min_wind_mean,
                  min_wind_period
   )
   
   
-  max_x_vec <- c(max_degrees, 
+  max_x_vec <- c(max_bed_slope_angle, 
                  max_bed_width, 
-                 max_clump_size,
-                 max_gap_size,
+                 max_fuel_clump_size,
                  max_fuel_depth, 
+                 max_fuel_gap_size,
                  max_fuel_loading, 
                  max_ignition_depth, 
                  max_particle_diameter, 
                  max_particle_moisture, 
-                 max_wind_amp,
-                 max_wind_speed,
+                 max_wind_amplitude_rel_mean,
+                 max_wind_mean,
                  max_wind_period
   )
   
@@ -206,15 +137,15 @@ predict_spread <- function(bed_slope_angle = 0,
   #-------------------------------------
   # Prediction
   #-------------------------------------
-  
-  predvec <- c(degrees.scale,
-               bed_width.scale,
-               fuel_depth.scale,
-               fuel_loading.scale,
-               ignition_depth.scale,
-               particle_diameter.scale,
-               particle_moisture.scale,
-               wind_mean.scale)
+  # 
+  # predvec <- c(degrees.scale,
+  #              bed_width.scale,
+  #              fuel_depth.scale,
+  #              fuel_loading.scale,
+  #              ignition_depth.scale,
+  #              particle_diameter.scale,
+  #              particle_moisture.scale,
+  #              wind_mean.scale)
   
   
   #x <- t(as.matrix(cbind(predvec)))
@@ -308,6 +239,10 @@ predict_spread <- function(bed_slope_angle = 0,
   outlist[[6]] <- temp.levs.x
   outlist[[7]] <- levcolum
   
+  ###For debugging purposes
+  fout <- ("debug.txt")
+  outmat.debug <- cbind(tempxvals, rep(temp.levs.x[1], length(tempxvals)), ycolmat[,1])
+  write.table(outmat.debug, fout, col.names = c(xparamnames[xcolnum], xparamnames[levcolum], yNames[ycolnum]), quote = F, row.names = FALSE)
   return(outlist)
 }
 
