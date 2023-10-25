@@ -235,9 +235,10 @@ predict_spread <- function(bed_slope_angle = 0,
   outlist[[7]] <- levcolum
   
   ###For debugging purposes
-  fout <- ("debug.txt")
-  outmat.debug <- cbind(xrep.all, ycolmat[,1])
-  write.table(outmat.debug, fout, quote = F, row.names = FALSE)
+  # fout <- ("debug.txt")
+  # outmat.debug <- cbind(xrep.all, ycolmat[,1])
+  # write.table(outmat.debug, fout, quote = F, row.names = FALSE)
+  
   return(outlist)
 }
 
