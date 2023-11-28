@@ -74,7 +74,7 @@ max_wind_period  <- 5
 ycolnames <- c( "ros", "fzd", "flength")
 ycolnames.verbose <- c( "Rate of Spread", "Flame Zone Depth", "Flame Length")
 
-
+test <- ""
 
 
 paramNames.verbose <- c("Bed Slope Angle",
