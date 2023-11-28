@@ -39,7 +39,7 @@ ui<-fluidPage(
                  sliderInput("ignition_depth", "Ignition Depth (meters)", min = min_ignition_depth, max = max_ignition_depth, value = 1.0, step = 0.01),
                  sliderInput("particle_diameter", "Particle Diameter (meters):", min = min_particle_diameter, max = max_particle_diameter, value = .0035, step = 0.0005),
                  sliderInput("particle_moisture", "Particle Moisture (%)", min = min_particle_moisture, max = max_particle_moisture, value = 2, step = 0.5),
-                 sliderInput("wind_amplitude_rel_mean", "Wind Amplitude rel. to mean (%)", min = min_wind_amplitude_rel_mean, max = max_wind_amplitude_rel_mean, value = 1.0, step = 0.01),
+                 sliderInput("wind_amplitude_rel_mean", "Wind Amplitude rel. to mean (Fraction)", min = min_wind_amplitude_rel_mean, max = max_wind_amplitude_rel_mean, value = 1.0, step = 0.01),
                  sliderInput("wind_mean", "Mean Wind Speed (m/s)", min = min_wind_mean, max = max_wind_mean, value = 3.0, step = 0.1),
                  sliderInput("wind_period", "Wind Period (s)", min = min_wind_period, max = max_wind_period, value = 3.0, step = 0.1),
                  sliderInput("wind_type", "Sine => 1, else 0", min = 0, max = 1, value = 0, step =1),

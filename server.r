@@ -33,9 +33,9 @@ nmc <- compile(new_model_combined)
 #                 "fuel_loading", "ignition_depth", "particle_diameter", "particle_moisture",
 #                 "wind_mean", "xvar", "yvar")
 
-
-
-
+# 
+# 
+# 
 # ###For testing
 # bed_slope_angle = 0
 # bed_width = 50
