@@ -2,19 +2,21 @@
 
 x_axis_vars <- c(  "Bed Slope Angle" = "bed_slope_angle" ,
                    "Bed Width"="bed_width" , 
-                     "Fuel Clump Size"="fuel_clump_size",
+                   "Fuel Clump Size"="fuel_clump_size",
                    "Fuel Depth"=   "fuel_depth",
-                       "Fuel Gap Size" ="fuel_gap_size",
-                      "Fuel Loading"= "fuel_loading",
-                  "Ignition Depth"  =  "ignition_depth",
-                     "Particle Diameter" =  "particle_diameter",
-                    "Particle Moisture"  = "particle_moisture",
+                   "Fuel Gap Size" ="fuel_gap_size",
+                   "Fuel Loading"= "fuel_loading",
+                   "Ignition Depth"  =  "ignition_depth",
+                   "Particle Diameter" =  "particle_diameter",
+                   "Particle Moisture"  = "particle_moisture",
                    "Wind Amplitude"  = "wind_amplitude_rel_mean",
                    "Mean Wind Speed" = "wind_mean", 
-                    "Wind Period" =  "wind_period",
+                   "Wind Period" =  "wind_period",
                    "Wind Type"   ="wind_type"
-                  
+                   
 )
+
+selectvars <- x_axis_vars[1:12]
 
 y_axis_vars <- c(
   "Spread Rate" = "ros",
@@ -94,4 +96,3 @@ paramNames.verbose <- c("Bed Slope Angle",
 
 nlevs <- 5
 npoints <- 100
-
