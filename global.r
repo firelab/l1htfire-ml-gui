@@ -62,8 +62,8 @@ min_fuel_loading <- 0.05
 max_fuel_loading <- 3
 min_ignition_depth <- 0.1
 max_ignition_depth  <- 4
-min_particle_diameter <- 0.001
-max_particle_diameter <- 0.005
+min_particle_diameter <- 1
+max_particle_diameter <- 5
 min_particle_moisture <- 2
 max_particle_moisture<- 35
 min_wind_amplitude_rel_mean  <- 0.2
@@ -94,5 +94,5 @@ paramNames.verbose <- c("Bed Slope Angle",
                         "Wind Type")
 
 
-nlevs <- 5
+nlevs <- 10
 npoints <- 100

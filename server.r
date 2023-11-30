@@ -50,7 +50,7 @@ predict_spread <- function(bed_slope_angle = 0,
                            fuel_gap_size = 0.0,
                            fuel_loading = 1.0,
                            ignition_depth = 1.0,
-                           particle_diameter = 0.0035,
+                           particle_diameter = 3.5,
                            particle_moisture = 2.0,
                            wind_amplitude_rel_mean = 100,
                            wind_mean = 3.0,
@@ -166,6 +166,10 @@ predict_spread <- function(bed_slope_angle = 0,
   #xrep[,xcolnum] <- seq(0, 30, length = 10)
   #print(xrep[,xcolnum])
   colnames(xrep.all) <- paramNames.verbose
+  ###Particle Diameter is in  milimeters, model calls for meters
+  xrep.all[,8] <- xrep.all[,8]/ 1000
+  
+  
   pred.output <- nmc %>% predict(xrep.all)
   #pred.output <- nmc %>% predict(x)
   #pred.output
@@ -211,7 +215,9 @@ plot_nav <- function(nav) {
   layout(matrix(c(1,1)))
   palette(c("black", "grey50", "grey30", "grey70", "#d9230f"))
   colorBlindBlack8  <- c("#000000", "#E69F00", "#56B4E9", "#009E73",
-                         "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+                         "#F0E442", "#C182B9", "#D55E00", "#A08AA0",
+                         "#d9230f", "#003FBf"
+                         )
   startseq <- seq(1,41, length = npoints)
   endseq <- seq(10, 50,length=npoints)
   tempx <- nav[[1]]
@@ -219,13 +225,37 @@ plot_nav <- function(nav) {
   ycoltemp <- nav[[4]]
   orig.x  <-  nav[[5]]
   ymattemp <-  nav[[2]]
-  legvals <- nav[[6]]
+  legvals <- round(nav[[6]], 2)
   levcolnum <- nav[[7]]
+  
+  
   #ymmattemp <-  outmat[,ycolnum]
   # ymattemp <- matrix(ymattemp, nrow = 10, byrow = TRUE)
   matplot(orig.x, ymattemp, type=  "n", xlab = paramNames.verbose[xcoltemp], ylab = ycolnames.verbose[ycoltemp])
   matlines(orig.x, ymattemp, col =colorBlindBlack8, lwd = 2)
-  legend("topleft",  legend = legvals, lty = 1:nlevs, col = colorBlindBlack8[1:nlevs], lwd = 2, title = paramNames.verbose[levcolnum])
+  
+  leg <- legend("topleft", legend = legvals, lty = 1:nlevs, col = colorBlindBlack8[1:nlevs], lwd = 2, title = paramNames.verbose[levcolnum], seg.len=0.5, cex = 1.0, plot = F)
+  
+  # adjust as desired
+  leftx <- leg$rect$left
+  rightx <- (leg$rect$left + leg$rect$w) * 0.5
+  topy <- leg$rect$top
+  bottomy <-(leg$rect$top - leg$rect$h) * 1
+  
+  temptitle <- paramNames.verbose[levcolnum]
+  tempnchar <- nchar(temptitle)
+  tempncharpad <- ""
+  
+  if(tempnchar < 15)
+  {
+    tempncharpad <- strrep(" ", times=15-tempnchar)
+    
+    
+  }
+  temppad <- paste(temptitle, tempncharpad)
+  
+  #legend(x = c(leftx, rightx), y = c(topy, bottomy),  legend = legvals, lty = 1:nlevs, col = colorBlindBlack8[1:nlevs], lwd = 2, title = paramNames.verbose[levcolnum], seg.len=0.75, cex = 1.0)
+  legend("topleft", legend = legvals, lty = 1:nlevs, col = colorBlindBlack8[1:nlevs], lwd = 2, title = temppad, seg.len=0.75, cex = 1.0)
   grid()
 }
 #

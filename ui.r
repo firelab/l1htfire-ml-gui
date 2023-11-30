@@ -40,7 +40,7 @@ how wildland fire behavior results from the complex relationships between enviro
                   sliderInput( "fuel_depth", "Fuel Depth (meters)", min = min_fuel_depth, max = max_fuel_depth, value = 0.5, step = 0.05),
                   sliderInput("fuel_loading", "Fuel Loading (kg/m^3)", min = min_fuel_loading, max = max_fuel_loading, value = 1.0, step = 0.01),
                   sliderInput("ignition_depth", "Ignition Depth (meters)", min = min_ignition_depth, max = max_ignition_depth, value = 1.0, step = 0.01),
-                  sliderInput("particle_diameter", "Particle Diameter (meters):", min = min_particle_diameter, max = max_particle_diameter, value = .0035, step = 0.0005),
+                  sliderInput("particle_diameter", "Particle Diameter (mm):", min = min_particle_diameter, max = max_particle_diameter, value = 3.5, step = 0.5),
                   sliderInput("particle_moisture", "Particle Moisture (%)", min = min_particle_moisture, max = max_particle_moisture, value = 2, step = 0.5),
                   sliderInput("wind_mean", "Mean Wind Speed (m/s)", min = min_wind_mean, max = max_wind_mean, value = 3.0, step = 0.1),
                   sliderInput("wind_amplitude_rel_mean", "Wind Amplitude rel. to mean (Fraction)", min = min_wind_amplitude_rel_mean, max = max_wind_amplitude_rel_mean, value = 1.0, step = 0.01),
