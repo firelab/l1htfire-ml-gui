@@ -42,7 +42,7 @@ nmc <- compile(new_model_combined)
 # xvar = "bed_slope_angle"
 # yvar  = "ros"
 # levvar ="bed_width"
-##End for testing
+# #End for testing
 predict_spread <- function(bed_slope_angle = 0,
                            bed_width = 50,
                            fuel_clump_size = 1.0,
@@ -153,6 +153,7 @@ predict_spread <- function(bed_slope_angle = 0,
   tempxvals.lev <- tempxvals.lev * denominator.lev
   tempxvals.lev <- tempxvals.lev  + min_x_vec[levcolum]
   temp.levs.x <- tempxvals.lev
+  temp.levs.x.pretty <- pretty(temp.levs.x)
   for(i in 1:nreps)
   {
     startseq[i] <- inc * npoints + 1
@@ -167,13 +168,16 @@ predict_spread <- function(bed_slope_angle = 0,
   #print(xrep[,xcolnum])
   colnames(xrep.all) <- paramNames.verbose
   ###Particle Diameter is in  milimeters, model calls for meters
-  xrep.all[,8] <- xrep.all[,8]/ 1000
+  xrep.all[,8] <- xrep.all[,6]/ 1000
   
   pred.output <- matrix(0, nrow = dim(xrep.all)[1], ncol  =3)
   
-  case4 <- (wind_type == "Sine Wind") && (gap_type == "Continuous")
+  vartest <- c(xvar, levvar)
   
-  if(!case4)
+  case4 <- (wind_type == "Sine Wind") && (gap_type == "Continuous")
+  case5 <- (gap_type == "Continuous" && any(vartest %in% c("fuel_gap_size", "fuel_clump_size")))
+  casetest <- case4 || case5
+    if(!casetest)
   {
     pred.output <- nmc %>% predict(xrep.all)
     
@@ -232,7 +236,7 @@ plot_nav <- function(nav) {
   ycoltemp <- nav[[4]]
   orig.x  <-  nav[[5]]
   ymattemp <-  nav[[2]]
-  legvals <- round(nav[[6]], 2)
+  legvals <- (round(nav[[6]], 1))
   levcolnum <- nav[[7]]
   
   
@@ -278,10 +282,7 @@ function(input, output, session) {
     toggleState("wind_period", input$wind_type == "Sine Wind")
     toggleState("wind_amplitude_rel_mean", input$wind_type == "Sine Wind")
   })
-  observeEvent(input$gap_type, {
-    toggleState("fuel_gap_size", input$gap_type == "Discontinuous")
-    toggleState("fuel_clump_size", input$gap_type == "Discontinuous")
-  })
+  
   #Toggling off X variable
   observeEvent(input$xvar, {
     toggleState("bed_slope_angle", input$xvar != "bed_slope_angle")
@@ -332,8 +333,12 @@ function(input, output, session) {
   observeEvent(input$levvar, {
     toggleState("fuel_loading", input$levvar != "fuel_loading")
   })
-  observeEvent(input$levvar, {
-    toggleState("fuel_gap_size", (input$gap_type == "Discontinuous") && (input$xvar != "fuel_gap_size"))
+  
+  observeEvent(input$gap_type, {
+    observeEvent(input$levvar, {
+      toggleState("fuel_gap_size", input$gap_type == "Discontinuous")
+      toggleState("fuel_clump_size", input$gap_type == "Discontinuous")
+    })
   })
   observeEvent(input$levvar, {
     toggleState("ignition_depth", input$levvar != "ignition_depth")

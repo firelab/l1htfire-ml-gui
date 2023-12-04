@@ -19,9 +19,9 @@ x_axis_vars <- c(  "Bed Slope Angle" = "bed_slope_angle" ,
 selectvars <- x_axis_vars[1:12]
 
 y_axis_vars <- c(
-  "Spread Rate" = "ros",
-  "Flame Zone Depth" = "fzd",
-  "Flame Length" = "flength"
+  "Spread Rate (meters / second)" = "ros",
+  "Flame Zone Depth (meters)" = "fzd",
+  "Flame Length (meters)" = "flength"
   
 )
 
@@ -74,23 +74,23 @@ min_wind_period <- 1
 max_wind_period  <- 5
 
 ycolnames <- c( "ros", "fzd", "flength")
-ycolnames.verbose <- c( "Rate of Spread", "Flame Zone Depth", "Flame Length")
+ycolnames.verbose <- c( "Rate of Spread (m/s)", "Flame Zone Depth (m)", "Flame Length (m)")
 
 test <- ""
 
 
-paramNames.verbose <- c("Bed Slope Angle",
-                        "Bed Width", 
-                        "Fuel Clump Size",
-                        "Fuel Depth",
-                        "Fuel Gap Size",
-                        "Fuel Loading",
-                        "Ignition Depth",
-                        "Particle Diameter",
-                        "Particle Moisture",
-                        "Wind Amplitude",
-                        "Mean Wind Speed", 
-                        "Wind Period",
+paramNames.verbose <- c("Bed Slope Angle (degrees)",
+                        "Bed Width (m)", 
+                        "Fuel Clump Size (m)",
+                        "Fuel Depth (m)",
+                        "Fuel Gap Size (m)",
+                        "Fuel Loading (kg/m^3",
+                        "Ignition Depth (m)",
+                        "Particle Diameter (mm)",
+                        "Particle Moisture (%)",
+                        "Wind Amplitude (Fraction)",
+                        "Mean Wind Speed (m/s)", 
+                        "Wind Period (s)",
                         "Wind Type")
 
 
