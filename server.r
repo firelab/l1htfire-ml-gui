@@ -169,7 +169,10 @@ predict_spread <- function(bed_slope_angle = 0,
   colnames(xrep.all) <- paramNames.verbose
   ###Particle Diameter is in  milimeters, model calls for meters
   xrep.df <- data.frame(xrep.all)
-  xrep.all[,which(names(xrep.df) ==  "Particle.Diameter..mm.")] <- xrep.df$Particle.Diameter..mm./ 1000
+  ### This should work!!!
+  ###xrep.all[,which(names(xrep.df) ==  "Particle.Diameter..mm.")] <- xrep.df$Particle.Diameter..mm./ 1000
+  xrep.all[,8] <- xrep.df$Particle.Diameter..mm./ 1000
+  
   
   pred.output <- matrix(0, nrow = dim(xrep.all)[1], ncol  =3)
   
