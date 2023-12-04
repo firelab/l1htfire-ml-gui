@@ -38,7 +38,7 @@ nmc <- compile(new_model_combined)
 # wind_amplitude_rel_mean = 100
 # wind_mean = 3.0
 # wind_period = 5.0
-# wind_type = 0
+# wind_type = "Constant Wind"
 # xvar = "bed_slope_angle"
 # yvar  = "ros"
 # levvar ="bed_width"
@@ -176,7 +176,11 @@ predict_spread <- function(bed_slope_angle = 0,
   
   case4 <- (wind_type == "Sine Wind") && (gap_type == "Continuous")
   case5 <- (gap_type == "Continuous" && any(vartest %in% c("fuel_gap_size", "fuel_clump_size")))
+  case6 <- (wind_type ==  "Constant Wind" && any(vartest %in% c("wind_amplitude_rel_mean", "wind_period")))
+  
   casetest <- case4 || case5
+  casetest <- casetest || case6
+  
     if(!casetest)
   {
     pred.output <- nmc %>% predict(xrep.all)
