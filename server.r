@@ -169,8 +169,15 @@ predict_spread <- function(bed_slope_angle = 0,
   ###Particle Diameter is in  milimeters, model calls for meters
   xrep.all[,8] <- xrep.all[,8]/ 1000
   
+  pred.output <- matrix(0, nrow = dim(xrep.all)[1], ncol  =3)
   
-  pred.output <- nmc %>% predict(xrep.all)
+  case4 <- (wind_type == "Sine Wind") && (gap_type == "Continuous")
+  
+  if(!case4)
+  {
+    pred.output <- nmc %>% predict(xrep.all)
+    
+  }
   #pred.output <- nmc %>% predict(x)
   #pred.output
   ###Normalize output
