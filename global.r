@@ -68,7 +68,7 @@ min_particle_moisture <- 2
 max_particle_moisture<- 35
 min_wind_amplitude_rel_mean  <- 0.2
 max_wind_amplitude_rel_mean  <- 1
-min_wind_mean <- 1
+min_wind_mean <- 0
 max_wind_mean <- 10
 min_wind_period <- 1
 max_wind_period  <- 5
