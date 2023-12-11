@@ -30,7 +30,7 @@ how wildland fire behavior results from the complex relationships between enviro
                            
                            radioButtons("gap_type", "Fuel Continuity", c("Continuous", "Discontinuous")),
                            sliderInput( "fuel_clump_size", "Fuel Clump Size (meters) :", min = min_fuel_clump_size, max = max_fuel_clump_size, value =1.0,
-                                        step = round(max_fuel_clump_size - min_fuel_clump_size)/100 ),
+                                        step = (max_fuel_clump_size - min_fuel_clump_size)/100 ),
                            sliderInput( "fuel_gap_size", "Fuel Gap Size (meters) :", min = min_fuel_gap_size, max =max_fuel_gap_size, value =0.15, 
                                         step = round(max_fuel_gap_size - min_fuel_gap_size)/100),
                            radioButtons("wind_type", "Wind Case", c("Constant Wind", "Sine Wind")),
