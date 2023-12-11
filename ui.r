@@ -32,7 +32,7 @@ how wildland fire behavior results from the complex relationships between enviro
                            sliderInput( "fuel_clump_size", "Fuel Clump Size (meters) :", min = min_fuel_clump_size, max = max_fuel_clump_size, value =1.0,
                                         step = round(max_fuel_clump_size - min_fuel_clump_size)/100 ),
                            sliderInput( "fuel_gap_size", "Fuel Gap Size (meters) :", min = min_fuel_gap_size, max =max_fuel_gap_size, value =0.15, 
-                                        step = (max_fuel_gap_size - min_fuel_gap_size)/100),
+                                        step = round(max_fuel_gap_size - min_fuel_gap_size)/100),
                            radioButtons("wind_type", "Wind Case", c("Constant Wind", "Sine Wind")),
                            sliderInput("wind_mean", "Mean Wind Speed (m/s)", min = min_wind_mean, max = max_wind_mean, value = 3.0, 
                                        step = round(max_wind_mean - min_fuel_gap_size)/100),
@@ -51,7 +51,7 @@ how wildland fire behavior results from the complex relationships between enviro
                   sliderInput("ignition_depth", "Ignition Depth (meters)", min = min_ignition_depth, max = max_ignition_depth, value = 1.0, step = round(max_ignition_depth - min_ignition_depth)/100),
                   sliderInput("particle_diameter", "Particle Diameter (mm):", min = min_particle_diameter, max = max_particle_diameter, value = 3.5, step = round(max_particle_diameter - min_particle_diameter)/100),
                   sliderInput("particle_moisture", "Particle Moisture (%)", min = min_particle_moisture, max = max_particle_moisture, value = 2, step = round(max_particle_moisture - min_particle_moisture)/100),
-                  
+                 
            ),
          ),
          uiOutput("bla1_ui"),  # here just for defining your ui

@@ -185,7 +185,7 @@ predict_spread <- function(bed_slope_angle = 0,
   casetest <- case4 || case5
   casetest <- casetest || case6
   
-  if(!casetest)
+    if(!casetest)
   {
     pred.output <- nmc %>% predict(xrep.all)
     
@@ -236,7 +236,7 @@ plot_nav <- function(nav) {
   colorBlindBlack8  <- c("#000000", "#E69F00", "#56B4E9", "#009E73",
                          "#F0E442", "#C182B9", "#D55E00", "#A08AA0",
                          "#d9230f", "#003FBf"
-  )
+                         )
   startseq <- seq(1,41, length = npoints)
   endseq <- seq(10, 50,length=npoints)
   tempx <- nav[[1]]
@@ -285,7 +285,7 @@ plot_nav <- function(nav) {
 #
 #
 function(input, output, session) {
-  
+ 
   observeEvent(input$wind_type, {
     toggleState("wind_period", input$wind_type == "Sine Wind")
     toggleState("wind_amplitude_rel_mean", input$wind_type == "Sine Wind")
