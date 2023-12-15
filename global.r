@@ -19,7 +19,7 @@ x_axis_vars <- c(  "Bed Slope Angle" = "bed_slope_angle" ,
 selectvars <- x_axis_vars[1:12]
 
 y_axis_vars <- c(
-  "Spread Rate (meters / second)" = "ros",
+  "Spread Rate (meters / minute)" = "ros",
   "Flame Zone Depth (meters)" = "fzd",
   "Flame Length (meters)" = "flength"
   
@@ -57,7 +57,7 @@ max_fuel_clump_size <- 2
 min_fuel_depth <- 0.05
 max_fuel_depth <-  1 
 min_fuel_gap_size <- 0.1
-max_fuel_gap_size <- 0.5
+max_fuel_gap_size <- 1.0
 min_fuel_loading <- 0.05
 max_fuel_loading <- 3
 min_ignition_depth <- 0.1
@@ -74,7 +74,7 @@ min_wind_period <- 1
 max_wind_period  <- 5
 
 ycolnames <- c( "ros", "fzd", "flength")
-ycolnames.verbose <- c( "Rate of Spread (m/s)", "Flame Zone Depth (m)", "Flame Length (m)")
+ycolnames.verbose <- c( "Rate of Spread (m/min)", "Flame Zone Depth (m)", "Flame Length (m)")
 
 test <- ""
 
