@@ -1,0 +1,497 @@
+<!HTML to be used with web_with_tf.py for WebApp>
+<!Pinkerton, Missoula Fire Lab, Jan 2024>
+
+<!DOCTYPE html>
+<html lang="en-US">
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+<head>
+	<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<img src="{{ url_for('static', filename='fs.png') }}" alt="USFS" width="100">
+<img src="{{ url_for('static', filename='google.png') }}" alt="Google" width="150">
+
+{% block header %}
+	<h1>{% block title %}L1HTFIRE-ML{% endblock %}</h1>
+	<h2>The L1HTFire model (Linear 1-Dimensional Heat Transfer) is a physics-based wildland fire spread model created by the USFS Missoula Fire Sciences Laboratory. This is a Machine Learning (ML) surrogate of L1HTFire and displays three output variables: fire spread rate, flame zone depth, and flame length. Google Research created the ML version using 575 million training runs of the physical model. The ML surrogate model is hosted here for demonstration purposes only in order to illustrate how wildland fire behavior results from the complex relationships between environmental and fire variables. A full description of this model can be found in Wildland Fire Behaviour (Finney, McAllister, Grumstrup & Forthofer, 2021)</h2>
+	<h3>Instructions: Set the desired X-Axis, Y-Axis, and Level variables and then use the sliders to select values for each variable. Hit "Calculate" to create/update graph.
+{% endblock %}
+
+<body>
+	<p></p>
+
+
+{% block content %}
+
+<script>
+	//change color of "Calculate" button after change is made on screen
+	function changeSubmitColor() {
+		let sub_button=document.getElementById("submit");
+		//let sub_button_2=document.getElementById("submit2");
+		//let gray_x=document.getElementById("{{ x_range[0] }}");
+		//let gray_l=document.getElementById("{{ key_labels[10] }}");
+		sub_button.style="color: darkgreen";
+		//sub_button_2.style="color: darkgreen";
+		//gray_x.disabled = true;
+		//gray_l.sytle-"color: gray";
+	}
+</script>
+
+<div id="GraphWidget" style="width:100%"></div>
+<script>
+	//graph widget
+	//data from python file
+	const xArray = {{ xaxis_nums }};
+	const yArray0 = {{ yaxis_nums[0] }};
+	const yArray1 = {{ yaxis_nums[1] }};
+	const yArray2 = {{ yaxis_nums[2] }};
+	const yArray3 = {{ yaxis_nums[3] }};
+	const yArray4 = {{ yaxis_nums[4] }};
+	const yArray5 = {{ yaxis_nums[5] }};
+	const yArray6 = {{ yaxis_nums[6] }};
+	const yArray7 = {{ yaxis_nums[7] }};
+	const yArray8 = {{ yaxis_nums[8] }};
+	const yArray9 = {{ yaxis_nums[9] }};
+
+	const data = [
+		{x: xArray, y: yArray0, mode: "lines", name: "{{ key_labels[0] }}", line: {dash: "solid"}},
+		{x: xArray, y: yArray1, mode: "lines", name: "{{ key_labels[1] }}" , line: {dash: "dot"}},
+		{x: xArray, y: yArray2, mode: "lines", name: "{{ key_labels[2] }}", line: {dash: "dash"}},
+		{x: xArray, y: yArray3, mode: "lines", name: "{{ key_labels[3] }}", line: {dash: "longdash"}},
+		{x: xArray, y: yArray4, mode: "lines", name: "{{ key_labels[4] }}", line: {dash: "dashdot"}},
+		{x: xArray, y: yArray5, mode: "lines", name: "{{ key_labels[5] }}", line: {dash: "longdashdot"}},
+		{x: xArray, y: yArray6, mode: "lines", name: "{{ key_labels[6] }}", line: {dash: "solid"}},
+		{x: xArray, y: yArray7, mode: "lines", name: "{{ key_labels[7] }}", line: {dash: "dot"}},
+		{x: xArray, y: yArray8, mode: "lines", name: "{{ key_labels[8] }}", line: {dash: "dash"}},
+		{x: xArray, y: yArray9, mode: "lines", name: "{{ key_labels[9] }}", line: {dash: "dashdot"}}
+	];
+
+	const layout = {
+		xaxis: {range: {{ x_range[1:2] }}, title: "{{ x_range[0] }}" },
+		yaxis: {range: {{ y_range[1:2] }}, title: "{{ y_range[0] }}" },
+		legend: {
+			title: { text: "{{ key_labels[10] }}" }
+		},
+		title: "Predictions",
+		font: {
+			family:"New Courier, monospace"
+		},
+	};
+
+	Plotly.newPlot("GraphWidget", data, layout);
+</script>
+		<form method="post" onclick="changeSubmitColor()">
+		<div class="row">
+		<div class="column">
+
+
+		<!X-axis Variable>
+		<div><br>
+		<label for="xaxis">X-Axis Variable:</label>
+		<select name="xaxis" id="xaxis" required>
+			<option value="bed_slope_angle">Bed Slope Angle</option>
+			<option value="bed_width">Bed Width</option>
+			<option value="fuel_clump_size">Fuel Clump Size</option>
+			<option value="fuel_depth">Fuel Depth</option>
+			<option value="fuel_gap_size">Fuel Gap Size</option>
+			<option value="fuel_loading">Fuel Loading</option>
+			<option value="ignition_depth">Ignition Depth</option>
+			<option value="particle_diameter">Particle Diameter</option>
+			<option value="particle_moisture">Particle Moisture</option>
+			<option value="wind_amplitude_rel_mean">Wind Amplitude</option>
+			<option value="wind_mean">Mean Wind Speed</option>
+			<option value="wind_period">Wind Period</option>
+		</select><br><br>
+
+		<script>
+			//to save selection
+			document.getElementById('xaxis').value = "{{ x_range[0] }}";
+		</script>
+		</div>
+
+		<!Y-Axis Variable>
+		<div>
+		<label for="yaxis">Y-Axis Variable:</label>
+		<select name="yaxis" id="yaxis" required>
+			<option value="spread_rate">Spread Rate (meters/minute)</option>
+			<option value="flame_zone_depth">Flame Zone Depth (meters)</option>
+			<option value="flame_length">Flame Length (meters)</option>
+		</select><br><br>
+
+		<script>
+			//to save selection
+			document.getElementById('yaxis').value = "{{ y_range[0] }}";
+		</script>
+		</div>
+	
+		<!Level Variable>
+		<div>
+		<label for="levelv">Level Variable:</label>
+		<select name="levelv" id="levelv" required>
+			<option value="bed_slope_angle">Bed Slope Angle</option>
+			<option value="bed_width">Bed Width</option>
+			<option value="fuel_clump_size">Fuel Clump Size</option>
+			<option value="fuel_depth">Fuel Depth</option>
+			<option value="fuel_gap_size">Fuel Gap Size</option>
+			<option value="fuel_loading">Fuel Loading</option>
+			<option value="ignition_depth">Ignition Depth</option>
+			<option value="particle_diameter">Particle Diameter</option>
+			<option value="particle_moisture">Particle Moisture</option>
+			<option value="wind_amplitude_rel_mean">Wind Amplitude</option>
+			<option value="wind_mean">Mean Wind Speed</option>
+			<option value="wind_period">Wind Period</option>
+		</select><br><br>
+
+		<script>
+			//to save selection
+			document.getElementById('levelv').value = "{{ key_labels[10] }}";
+		</script>
+		</div>
+
+		<!Mean Wind Speed>
+		<div><br>
+		<label for="mws">Mean Wind Spead (m/s):</label><br>
+		<p>Value: <output id="mws_out"></output></p>
+		<input type="range" name="mws" id="mws" min="0" max="10" value="{{ point_list[10] }}" step="0.1" list="mws_markers">
+		
+		<script>
+			//displays selected value on gui
+			const mws_val = document.querySelector("#mws_out");
+			const mws_input = document.querySelector("#mws");
+			mws_val.textContent = mws_input.value;
+			mws_input.addEventListener("input", (event) => {
+				mws_val.textContent = event.target.value;
+			});
+		</script>
+
+		<datalist id="mws_markers">
+			<option value="0" label="0"></option>
+			<option value="5" label="5"></option>
+			<option value="10" label="10"></option>
+		</datalist>
+		</div>
+		
+		<!Bed Slope Angle>
+		<div><br><br>
+		<label for="bsa">Bed Slope Angle (degrees):</label><br>
+		<p>Value: <output id="bsa_out"></output></p>
+		<input type="range" name="bsa" id="bsa" min="0" max="30" step="0.3" value="{{ point_list[0] }}" list="bsa_markers">
+
+		<script>
+			//displays selected value on gui
+			const bsa_val = document.querySelector("#bsa_out");
+			const bsa_input = document.querySelector("#bsa");
+			bsa_val.textContent = bsa_input.value;
+			bsa_input.addEventListener("input", (event) => {
+				bsa_val.textContent = event.target.value;
+			});
+		</script>
+
+		<datalist id="bsa_markers">
+			<option value="0" label="0"></option>
+			<option value="15" label="15"></option>
+			<option value="30" label="30"></option>
+		</datalist>
+		</div>
+
+		<!Bed Width>
+		<div><br><br>
+		<label for="bw">Bed Width (meters):</label><br>
+		<p>Value: <output id="bw_out"></output></p>
+		<input type="range" name="bw" id="bw" min="1" max="50" step="0.5" value="{{ point_list[1] }}" list="bw_markers">
+
+		<script>
+			//displays selected value on gui
+			const bw_val = document.querySelector("#bw_out");
+			const bw_input = document.querySelector("#bw");
+			bw_val.textContent = bw_input.value;
+			bw_input.addEventListener("input", (event) => {
+				bw_val.textContent = event.target.value;
+			});
+		</script>
+
+		<datalist id="bw_markers">
+			<option value="1" label="1"></option>
+			<option value="25" label="25"></option>
+			<option value="50" label="50"></option>
+		</datalist>
+		</div>
+	</div>	
+
+	<div class="column">	
+		<!Fuel Depth>
+		<div><br><br>
+		<label for="fd">Fuel Depth (meters):</label><br>
+		<p>Value: <output id="fd_out"></output></p>
+		<input type="range" name="fd" id="fd" min="0.05" max="1" step="0.01" value="{{ point_list[3] }}" list="fd_markers">
+
+		<script>
+			//displays selected value on gui
+			const fd_val = document.querySelector("#fd_out");
+			const fd_input = document.querySelector("#fd");
+			fd_val.textContent = fd_input.value;
+			fd_input.addEventListener("input", (event) => {
+				fd_val.textContent = event.target.value;
+			});
+		</script>
+
+		<datalist id="fd_markers">
+			<option value=".05" label=".05"></option>
+			<option value="0.5" label="0.5"></option>
+			<option value="1.0" label="1.0"></option>
+		</datalist>
+		</div>
+
+		<!Fuel Loading>
+		<div><br><br>
+		<label for="fl">Fuel Loading (kg/m^3):</label><br>
+		<p>Value: <output id="fl_out"></output></p>
+		<input type="range" name="fl" id="fl" min="0.05" max="3" step="0.05" value="{{ point_list[5] }}" list="fl_markers">
+
+		<script>
+			//displays selected value on gui
+			const fl_val = document.querySelector("#fl_out");
+			const fl_input = document.querySelector("#fl");
+			fl_val.textContent = fl_input.value;
+			fl_input.addEventListener("input", (event) => {
+				fl_val.textContent = event.target.value;
+			});
+		</script>
+
+		<datalist id="fl_markers">
+			<option value="0.05" label="0.05"></option>
+			<option value="1.5" label="1.5"></option>
+			<option value="3.0" label="3.0"></option>
+		</datalist>
+		</div>
+
+		<!Ignition Depth>
+		<div><br><br>
+		<label for="igd">Igntion Depth (meters):</label><br>
+		<p>Value: <output id="igd_out"></output></p>
+		<input type="range" name="igd" id="igd" min="0.1" max="4.1" step="0.02" value="{{ point_list[6] }}" list="igd_markers">
+
+		<script>
+			//displays selected value on gui
+			const igd_val = document.querySelector("#igd_out");
+			const igd_input = document.querySelector("#igd");
+			igd_val.textContent = igd_input.value;
+			igd_input.addEventListener("input", (event) => {
+				igd_val.textContent = event.target.value;
+			});
+		</script>
+
+		<datalist id="igd_markers">
+			<option value="0.1" label="0.1"></option>
+			<option value="2.0" label="2.0"></option>
+			<option value="4.0" label="4.0"></option>
+		</datalist>
+		</div>
+
+		<!Particle Diameter>
+		<div><br><br>
+		<label for="pd">Particle Diameter (mm):</label><br>
+		<p>Value: <output id="pd_out"></output></p>
+		<input type="range" name="pd" id="pd" min="1" max="5" step="0.02" value="{{ point_list[7] }}" list="pd_markers">
+
+		<script>
+			//displays selected value on gui
+			const pd_val = document.querySelector("#pd_out");
+			const pd_input = document.querySelector("#pd");
+			pd_val.textContent = pd_input.value;
+			pd_input.addEventListener("input", (event) => {
+				pd_val.textContent = event.target.value;
+			});
+		</script>
+
+		<datalist id="pd_markers">
+			<option value="1" label="1"></option>
+			<option value="3" label="3"></option>
+			<option value="5" label="5"></option>
+		</datalist>
+		</div>
+	</div>	
+
+	<div class="column">
+		<!Particle Moisture>
+		<div><br><br>
+		<label for="pm">Particle Moisture (%):</label><br>
+		<p>Value: <output id="pm_out"></output></p>
+		<input type="range" name="pm" id="pm" min="2" max="35" step="0.25" value="{{ point_list[8] }}" list="pm_markers">
+
+		<script>
+			//displays selected value on gui
+			const pm_val = document.querySelector("#pm_out");
+			const pm_input = document.querySelector("#pm");
+			pm_val.textContent = pm_input.value;
+			pm_input.addEventListener("input", (event) => {
+				pm_val.textContent = event.target.value;
+			});
+		</script>
+
+		<datalist id="pm_markers">
+			<option value="2" label="2"></option>
+			<option value="18.5" label="18.5"></option>
+			<option value="35" label="35"></option>
+		</datalist>
+		</div><br>
+
+
+		<!Fuel Continuity>
+		<p>Note: Fuel Clump Size and Fuel Gap Size will be 0 unless Fuel Continuity is set to Discontinuous.</p>
+		<div>
+		<label for="fcont">Fuel Continuity:</label><br>
+		<input type="radio" name="fcont" id="cont" value="Continuous" required> Continuous<br>
+		<input type="radio" name="fcont" id="discont" value="Discontinuous" required> Discontinuous <br><br>
+
+		<script>
+			//took a stupidly long time but saves user-selected value for radio button
+			if ( {{ radio_points[1] }} == 0) {
+				document.getElementById("cont").checked = "checked";
+			}
+			else {
+				document.getElementById("discont").checked = "checked";
+			}
+		</script>
+		</div>
+
+		<!Fuel Clump Size>
+		<div>
+		<label for="fcs">Fuel Clump Size (meters):</label><br>
+		<p>Value: <output id="fcs_out"></output></p>
+		<input type="range" name="fcs" id="fcs" min="0.5" max="2" step="0.01" value="{{ point_list[2] }}" list="fcs_markers">
+		
+		<datalist id="fcs_markers">
+			<option value="0.5" label="0.5"></option>
+			<option value="1.25" label="1.25"></option>
+			<option value="2.0" label="2.0"></option>
+		</datalist>
+
+		<script>
+			//displays selected value on gui
+			const fcs_val = document.querySelector("#fcs_out");
+			const fcs_input = document.querySelector("#fcs");
+			fcs_val.textContent = fcs_input.value;
+			fcs_input.addEventListener("input", (event) => {
+				fcs_val.textContent = event.target.value;
+			});
+		</script>
+		</div>
+		
+		<!Fuel Gap Size>
+		<div><br><br>
+		<label for="fgs">Fuel Gap Size (meters):</label><br>
+		<p>Value: <output id="fgs_out"></output></p>
+		<input type="range" name="fgs" id="fgs" min="0.1" max="0.5" step="0.004" value="{{ point_list[4] }}" list="fgs_markers">
+
+		<script>
+			//displays selected value on gui
+			const fgs_val = document.querySelector("#fgs_out");
+			const fgs_input = document.querySelector("#fgs");
+			fgs_val.textContent = fgs_input.value;
+			fgs_input.addEventListener("input", (event) => {
+				fgs_val.textContent = event.target.value;
+			});
+		</script>
+
+		<datalist id="fgs_markers">
+			<option value="0.1" label="0.1"></option>
+			<option value="0.3" label="0.3"></option>
+			<option value="0.5" label="0.5"></option>
+		</datalist><br>
+		</div>
+	</div>	
+
+	<div class="column">
+		<!Wind Case>
+		<p>Note: Wind Amplitude Relative to Mean and Wind Period will be 0 unless Wind Case is set to Sine Wind.</p>
+		<div>
+		<label for="wc">Wind Case:</label><br>
+		<input type="radio" name="wc" id="constant" value="Constant">
+		<label for="constant">Constant Wind</label><br>
+		<input type="radio" name="wc" id="sine" value="Sine">
+		<label for="sine">Sine Wind</label><br><br>
+
+		<script>
+			//saves user selection
+			if ( {{ radio_points[0] }} == 0) {
+				document.getElementById("constant").checked = "checked";
+			}
+			else {
+				document.getElementById("sine").checked = "checked";
+			}
+		</script>		
+		</div>
+		
+		<!Wind Amplitude rel to mean>
+		<div>
+		<label for="wa">Wind Amplitude Relative to Mean (Fraction):</label><br>
+		<p>Value: <output id="wa_out"></output></p>
+		<input type="range" name="wa" id="wa" min="0.2" max="1" step="0.01" value="{{ point_list[9] }}" list="wa_markers">
+
+		<script>
+			//displays selected value on gui
+			const wa_val = document.querySelector("#wa_out");
+			const wa_input = document.querySelector("#wa");
+			wa_val.textContent = wa_input.value;
+			wa_input.addEventListener("input", (event) => {
+				wa_val.textContent = event.target.value;
+			});
+		</script>
+
+		<datalist id="wa_markers">
+			<option value="0.2" label="0.2"></option>
+			<option value="0.6" label="0.6"></option>
+			<option value="1.0" label="1.0"></option>
+		</datalist>
+		</div>
+		
+		<!Wind Period (s)>
+		<div><br><br>
+		<label for="wp">Wind Period (s):</label><br>
+		<p>Value: <output id="wp_out"></output></p>
+		<input type="range" name="wp" id="wp" min="1" max="5" step="0.04" value="{{ point_list[11] }}" list="wp_markers">
+
+		<script>
+			//displays selected value on gui
+			const wp_val = document.querySelector("#wp_out");
+			const wp_input = document.querySelector("#wp");
+			wp_val.textContent = wp_input.value;
+			wp_input.addEventListener("input", (event) => {
+				wp_val.textContent = event.target.value;
+			});
+		</script>
+
+		<datalist id="wp_markers">
+			<option value="1" label="1"></option>
+			<option value="3" label="3"></option>
+			<option value="5" label="5"></option>
+		</datalist>
+		</div><br><br>
+
+		<!Calculate button>
+		<div>
+		<input type="submit" id="submit" value="Calculate"><br>
+		</div>
+
+		<br><br>
+	</div>
+		<!get messages flashed from python>
+		{% with messages = get_flashed_messages() %}
+			{% if messages %}
+				<ul class=flashes>
+				{% for message in messages %}
+					<li>{{ message }}</li>
+				{% endfor %}
+				</ul>
+			{% endif %}
+		{% endwith %}
+	</form></b>
+</div>
+
+{% endblock %}
+</body>
+</html>

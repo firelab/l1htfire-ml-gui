@@ -1,0 +1,95 @@
+/*css for base.html, to be used with web_with_tf.py for WebApp
+Pinkerton, Missoula Fire Lab, Jan 2024*/
+
+body{
+	background-color:  white;
+	margin:  50px;
+}
+
+h1{
+	color: black;
+	font-family: "Courier New", "Monaco", monospace;
+}
+
+h2{
+	color: black;
+	font-family: "Courier New", "Monaco", monospace;
+	font-size:  1em;
+}
+
+h3{
+	color: black;
+	font-family: "Courier New", "Monaco", monospace;
+	font-size: 1em;
+}
+
+div{
+	color: black;
+	font-family: "Courier New", "Monaco", monospace;
+	font-size: 1em;
+}
+
+p{
+	color: darkred;
+	font-family: "Courier New", "Monaco", monospace;
+	font-size: .85em;
+}
+
+datalist{
+	display: flex;
+	justify-content: space-between;
+	color: darkgray;
+	width: 35%;
+	font-size: .85em;
+}
+
+option{
+	padding: 0;
+}
+
+input[type="range"]{
+	width: 35%;
+	margin: 0;
+	color: blue;
+}
+select{
+	font-family: "Courier New", "Monaco", monospace;
+	font-size: .85em;
+}
+
+input[type="submit"]{
+	font-family: "Courier New", "Monaco", monospace;
+	color: gray;
+	font-size: 1em;
+}
+
+div[id="GraphWidget"]{
+	font-family: "Courier New", "Monaco", monospace;
+}
+* {
+	box-sizing: border-box;
+}
+
+.column {
+	float: left;
+	width: 25%;
+	padding: 10px;
+}
+
+.row:after {
+	content: "";
+	display: table;
+	clear: both;
+}
+
+@media screen and (max-width: 900px) {
+	.column {
+		width: 50%;
+	}
+}
+
+@media screen and (max-width: 600px) {
+	.column {
+		width: 100%;
+	}
+}
