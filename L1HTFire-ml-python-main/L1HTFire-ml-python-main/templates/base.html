@@ -33,7 +33,7 @@
 		//let sub_button_2=document.getElementById("submit2");
 		//let gray_x=document.getElementById("{{ x_range[0] }}");
 		//let gray_l=document.getElementById("{{ key_labels[10] }}");
-		sub_button.style="color: darkgreen";
+		sub_button.style="color: limegreen";
 		//sub_button_2.style="color: darkgreen";
 		//gray_x.disabled = true;
 		//gray_l.sytle-"color: gray";
@@ -295,7 +295,7 @@
 		<div><br><br>
 		<label for="pd">Particle Diameter (mm):</label><br>
 		<p>Value: <output id="pd_out"></output></p>
-		<input type="range" name="pd" id="pd" min="1" max="5" step="0.02" value="{{ point_list[7] }}" list="pd_markers">
+		<input type="range" name="pd" id="pd" min="0.5" max="5" step="0.02" value="{{ point_list[7] }}" list="pd_markers">
 
 		<script>
 			//displays selected value on gui
@@ -308,7 +308,7 @@
 		</script>
 
 		<datalist id="pd_markers">
-			<option value="1" label="1"></option>
+			<option value="0.5" label="0.5"></option>
 			<option value="3" label="3"></option>
 			<option value="5" label="5"></option>
 		</datalist>
