@@ -11,13 +11,13 @@ h1{
 	font-family: "Courier New", "Monaco", monospace;
 }
 
-h2{
+p1{
 	color: black;
 	font-family: "Courier New", "Monaco", monospace;
 	font-size:  1em;
 }
 
-h3{
+p2{
 	color: black;
 	font-family: "Courier New", "Monaco", monospace;
 	font-size: 1em;
@@ -59,8 +59,9 @@ select{
 
 input[type="submit"]{
 	font-family: "Courier New", "Monaco", monospace;
-	color: gray;
+	color: black;
 	font-size: 1em;
+	padding: 16px 32px;
 }
 
 div[id="GraphWidget"]{
