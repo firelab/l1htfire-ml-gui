@@ -22,7 +22,7 @@ tf.compat.v1.enable_eager_execution()
 #{key, [min, max, #steps]}
 xaxis_dict = {
 	'bed_slope_angle' : [0, 30, 9],
-	'bed_width' : [1, 50, 9],
+	'bed_width' : [1, 100, 9],
 	'fuel_clump_size' : [0.5 , 2, 9],
 	'fuel_depth' : [0.05, 1, 9],
 	'fuel_gap_size' : [0.1, 0.5, 9],
@@ -43,7 +43,7 @@ yaxis_dict = {
 
 levelv_dict = {
 	'bed_slope_angle' : [0, 30, 9],
-	'bed_width' : [1, 50, 9],
+	'bed_width' : [1, 100, 9],
 	'fuel_clump_size' : [0.5 , 2, 9],
 	'fuel_depth' : [0.05, 1, 9],
 	'fuel_gap_size' : [0.1, 0.5, 9],
@@ -78,6 +78,24 @@ y_index_dict = {
 	'spread_rate' : 2
 }
 
+axis_label_dict = {
+	'bed_slope_angle' : "Bed Slope Angle (degrees)",
+	'bed_width' : "Bed Width (m)",
+	'fuel_clump_size' : "Fuel Clump Size (m)",
+	'fuel_depth' : "Fuel Depth (m)",
+	'fuel_gap_size' : "Fuel Gap Size (m)",
+	'fuel_loading' : "Fuel Loading (kg/m^3)",
+	'ignition_depth' : "Ignition Depth (m)",
+	'particle_diameter' : "Particle Diameter (mm)",
+	'particle_moisture' : "Particle Moisture (%)",
+	'wind_amplitude_rel_mean' : "Wind Amplitude (fraction)",
+	'wind_mean' : "Mean Wind Speed (m/s)",
+	'wind_period' : "Wind Period (s)",
+	'flame_length' : "Flame Length (m)",
+	'flame_zone_depth' : "Flame Zone Depth (m)",
+	'spread_rate' : "Spread Rate (m/min)"
+}
+
 #sets values for x_axis points
 #inputs: range dictionary, variable selection name, number of points desired
 def set_axis(ax_dict, name, num_steps):
@@ -110,7 +128,7 @@ def get_xaxis_points(axis_list, val_list, index):
 		pred_list.append(new_val)
 	return pred_list
 
-#takes nested lists grom get_xaxis_points and feeds to ml model, returns nested list with predictions
+#takes nested lists from get_xaxis_points and feeds to ml model, returns nested list with predictions
 def create_pred_set(nest_list):
 	tensor_list = []
 	pred_list = []
@@ -240,20 +258,35 @@ def create_app():
 			point_list.append(wp)
 			point_list.append(w_code)
 			
-			#flash(feature_names)
-
-			#flash(point_list)
-
 			#used for graph widget
 			xaxis_points = set_axis(xaxis_dict, str(xaxis), 199)
 			yaxis_points = set_axis(yaxis_dict, str(yaxis), 9)
 			levelv_points = set_axis(levelv_dict, str(levelv), 9)
+
+			#obnoxious units fix for particle_diameter
+			#don't move to different section of code
+			if str(levelv) == "particle_diameter":
+				i=0
+				while i < len(levelv_points):
+					mult_level = levelv_points.copy()
+					levelv_points[i] = mult_level[i]*1000
+					i+=1
+
+			if str(xaxis) == "particle_diameter":
+				i=0
+				while i < len(xaxis_points):
+					mult_xaxis = xaxis_points.copy()
+					xaxis_points[i] = mult_xaxis[i]*1000
+					i+=1
+
 			levelv_points.append(levelv)
 			x_range = set_range(xaxis_dict, str(xaxis))
 			y_range = set_range(yaxis_dict, str(yaxis))
 
 			#init
 			y_list = [0, 0, 0, 0]
+
+			axis_labels=[axis_label_dict.get(str(xaxis)), axis_label_dict.get(str(yaxis)), axis_label_dict.get(str(levelv))]
 
 			#get teh predictions/return lists for plotting
 			y_set = (add_level_vars(str(levelv), point_list, str(xaxis), str(yaxis), x_index_dict, y_index_dict, xaxis_dict, levelv_dict))
@@ -263,17 +296,18 @@ def create_app():
 			point_list[7]=point_list[7]*1000
 
 			#udpate page
-			return render_template('base.html', point_list = point_list, xaxis_nums = xaxis_points, yaxis_nums = y_set, x_range = x_range, y_range = y_range, key_labels = levelv_points, radio_points = radio_points)
+			return render_template('base.html', point_list = point_list, xaxis_nums = xaxis_points, yaxis_nums = y_set, x_range = x_range, y_range = y_range, key_labels = levelv_points, radio_points = radio_points, axis_labels = axis_labels)
 		
 		else:
 			#only really used on startup, init values
-			point_list=[0,25,0,0.5,0,1.5,2.0,.003,2,0,5,0]
+			point_list=[0,50,0,0.2,0,0.2,2.0,2,10,0,4,0]
 			xaxis_nums=[0,1]
 			yaxis_nums=[0,1]
-			x_range=["bed_slope_angle", 0, 1]
+			x_range=["wind_mean", 0, 1]
 			y_range=["spread_rate", 0, 1]
-			key_labels=[0,0,0,0,0,0,0,0,0,0,"bed_width"]
+			key_labels=[0,0,0,0,0,0,0,0,0,0,"particle_moisture"]
 			init_radio_points = [0,0]
-			return render_template('base.html', point_list = point_list, xaxis_nums = xaxis_points, yaxis_nums = yaxis_points, x_range = x_range, y_range = y_range, key_labels = key_labels, radio_points = init_radio_points)
+			init_axis_labels = [axis_label_dict.get('bed_slope_angle'), axis_label_dict.get('spread_rate'), axis_label_dict.get('bed_width')]
+			return render_template('base.html', point_list = point_list, xaxis_nums = xaxis_points, yaxis_nums = yaxis_points, x_range = x_range, y_range = y_range, key_labels = key_labels, radio_points = init_radio_points, axis_labels = init_axis_labels)
 
 	return app
