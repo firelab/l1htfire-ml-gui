@@ -3,7 +3,7 @@
 #to be deployed to web server
 
 from flask import Flask
-from flask import request, render_template, flash, url_for
+from flask import request, render_template, flash, url_for, redirect
 import tensorflow as tf
 import numpy
 import os.path
@@ -186,8 +186,6 @@ def add_level_vars(name_level, point_list, name_xaxis, name_yaxis, x_dict_index,
 
 #main, does all of the work
 def create_app():
-	#app = Flask(__name__, instance_relative_config=True)
-	#app.config.from_pyfile('config.py')
 	app = Flask(__name__)
 	app.secret_key = 'dfjINl!43&Kdfndla*lkn_dl2dsgdHrsd^5H9>46#c*5N'
 
@@ -197,117 +195,157 @@ def create_app():
 		pass
 
 	@app.route("/", methods=['GET', 'POST']) #to change url add after "/..."
+	#save values in url so can pass link
+	@app.route("/<xaxis>&<yaxis>&<levelv>&<mws>&<bsa>&<bw>&<fd>&<fl>&<igd>&<pd>&<pm>&<fcont>&<fcs>&<fgs>&<wc>&<wa>&<wp>")
 	def gui_test():
-
-		point_list = []
+		
 		xaxis_points = []
 		yaxis_points = []
-		radio_points = []
+		
+		#get all the user input from selections
+		uxaxis = request.form.get('xaxis')
+		uyaxis = request.form.get('yaxis')
+		ulevelv = request.form.get('levelv')
+		ufcont = request.form.get('fcont')
+		ufcs = (request.form.get('fcs'))
+		ufgs = (request.form.get('fgs'))
+		uwc = request.form.get('wc')
+		umws = (request.form.get('mws'))
+		uwa = (request.form.get('wa'))
+		uwp = (request.form.get('wp'))
+		ubsa = (request.form.get('bsa'))
+		ubw = (request.form.get('bw'))
+		ufd = (request.form.get('fd'))
+		ufl = (request.form.get('fl'))
+		uigd = (request.form.get('igd'))
+		upd = (request.form.get('pd'))#to handle change in units
+		upm = (request.form.get('pm'))
+
+		point_list=[]
+		xaxis_nums=[0,1]
+		y_set=[0,1]
+		x_range=["wind_mean", 0, 1]
+		y_range=["spread_rate", 0, 1]
+		radio_points = [0,0]
+		axis_labels = [axis_label_dict.get('wind_mean'), axis_label_dict.get('spread_rate'), axis_label_dict.get('particle_moisture')]
+
+		if request.args.get('xaxis') != None: #force init values if no value for xaxis
+
+			#get all the user input from url
+			xaxis = request.args.get('xaxis')
+			yaxis = request.args.get('yaxis')
+			levelv = request.args.get('levelv')
+			fcont = request.args.get('fcont')
+			fgs = float(request.args.get('fgs'))
+			fcs = float(request.args.get('fcs'))
+			wc = request.args.get('wc')
+			mws = float(request.args.get('mws'))
+			wa = float(request.args.get('wa'))
+			wp = float(request.args.get('wp'))
+			bsa = float(request.args.get('bsa'))
+			bw = float(request.args.get('bw'))
+			fd = float(request.args.get('fd'))
+			fl = float(request.args.get('fl'))
+			igd = float(request.args.get('igd'))
+			pd = float(request.args.get('pd'))/1000 #to handle change in units
+			pm = float(request.args.get('pm'))
+
+		else:
+			#init values
+			xaxis = 'wind_mean'
+			yaxis = 'spread_rate'
+			levelv = 'particle_moisture'
+			fcont = 'Continuous'
+			fcs = 0.0
+			fgs = 0.0
+			wc = "Constant"
+			mws = 4.0
+			wa = 0.0
+			wp = 0.0
+			bsa = 0.0
+			bw = 50.0
+			fd = 0.2
+			fl = 0.2
+			igd = 2.0
+			pd = 0.002 #to handle change in units
+			pm = 10.0
+
+			
+		#handles radio button input, allows value to be saved
+		if wc == 'Constant':
+			wa = 0.0
+			wp = 0.0
+			w_code = 0.0
+			radio_points[0]=0
+		else:
+			w_code = 0.0
+			radio_points[0]=1
+
+		if fcont == 'Continuous':
+			fcs = 0.0
+			fgs = 0.0
+			radio_points[1]=0
+		else:
+			radio_points[1]=1
+
+		#create list of user input
+		point_list.append(bsa)
+		point_list.append(bw)
+		point_list.append(fcs)
+		point_list.append(fd)
+		point_list.append(fgs)
+		point_list.append(fl)
+		point_list.append(igd)
+		point_list.append(pd)
+		point_list.append(pm)
+		point_list.append(wa)
+		point_list.append(mws)
+		point_list.append(wp)
+		point_list.append(w_code)
+			
+		#used for graph widget
+		xaxis_points = set_axis(xaxis_dict, str(xaxis), 199)
+		yaxis_points = set_axis(yaxis_dict, str(yaxis), 9)
+		levelv_points = set_axis(levelv_dict, str(levelv), 9)
+
+		#obnoxious units fix for particle_diameter
+		#don't move to different section of code
+		if str(levelv) == "particle_diameter":
+			i=0
+			while i < len(levelv_points):
+				mult_level = levelv_points.copy()
+				levelv_points[i] = mult_level[i]*1000
+				i+=1
+
+		if str(xaxis) == "particle_diameter":
+			i=0
+			while i < len(xaxis_points):
+				mult_xaxis = xaxis_points.copy()
+				xaxis_points[i] = mult_xaxis[i]*1000
+				i+=1
+
+		levelv_points.append(levelv)
+		x_range = set_range(xaxis_dict, str(xaxis))
+		y_range = set_range(yaxis_dict, str(yaxis))
+
+		#init
+		y_list = [0, 0, 0, 0]
+
+		axis_labels=[axis_label_dict.get(str(xaxis)), axis_label_dict.get(str(yaxis)), axis_label_dict.get(str(levelv))]
+
+		#get teh predictions/return lists for plotting
+		y_set = (add_level_vars(str(levelv), point_list, str(xaxis), str(yaxis), x_index_dict, y_index_dict, xaxis_dict, levelv_dict))
+			
+		#annoying fix to get particle moistion to save; keep directly above render template or
+		#everything will break
+		point_list[7]=point_list[7]*1000		
+		
 
 		#if user hits calculate
 		if request.method == 'POST':
-
-			#get all the user input
-			xaxis = request.form.get('xaxis')
-			yaxis = request.form.get('yaxis')
-			levelv = request.form.get('levelv')
-			fcont = request.form.get('fcont')
-			fcs = float(request.form.get('fcs'))
-			fgs = float(request.form.get('fgs'))
-			wc = request.form.get('wc')
-			mws = float(request.form.get('mws'))
-			wa = float(request.form.get('wa'))
-			wp = float(request.form.get('wp'))
-			bsa = float(request.form.get('bsa'))
-			bw = float(request.form.get('bw'))
-			fd = float(request.form.get('fd'))
-			fl = float(request.form.get('fl'))
-			igd = float(request.form.get('igd'))
-			pd = float(request.form.get('pd'))/1000 #to handle change in units
-			pm = float(request.form.get('pm'))
-
-			#handles radio button input, allows value to be saved
-			if wc == 'Constant':
-				wa = 0.0
-				wp = 0.0
-				w_code = 0.0
-				radio_points.append(0)
-			else:
-				w_code = 0.0
-				radio_points.append(1)
-
-			if fcont == 'Continuous':
-				fcs = 0.0
-				fgs = 0.0
-				radio_points.append(0)
-			else:
-				radio_points.append(1)
-
-			#create list of user input
-			point_list.append(bsa)
-			point_list.append(bw)
-			point_list.append(fcs)
-			point_list.append(fd)
-			point_list.append(fgs)
-			point_list.append(fl)
-			point_list.append(igd)
-			point_list.append(pd)
-			point_list.append(pm)
-			point_list.append(wa)
-			point_list.append(mws)
-			point_list.append(wp)
-			point_list.append(w_code)
-			
-			#used for graph widget
-			xaxis_points = set_axis(xaxis_dict, str(xaxis), 199)
-			yaxis_points = set_axis(yaxis_dict, str(yaxis), 9)
-			levelv_points = set_axis(levelv_dict, str(levelv), 9)
-
-			#obnoxious units fix for particle_diameter
-			#don't move to different section of code
-			if str(levelv) == "particle_diameter":
-				i=0
-				while i < len(levelv_points):
-					mult_level = levelv_points.copy()
-					levelv_points[i] = mult_level[i]*1000
-					i+=1
-
-			if str(xaxis) == "particle_diameter":
-				i=0
-				while i < len(xaxis_points):
-					mult_xaxis = xaxis_points.copy()
-					xaxis_points[i] = mult_xaxis[i]*1000
-					i+=1
-
-			levelv_points.append(levelv)
-			x_range = set_range(xaxis_dict, str(xaxis))
-			y_range = set_range(yaxis_dict, str(yaxis))
-
-			#init
-			y_list = [0, 0, 0, 0]
-
-			axis_labels=[axis_label_dict.get(str(xaxis)), axis_label_dict.get(str(yaxis)), axis_label_dict.get(str(levelv))]
-
-			#get teh predictions/return lists for plotting
-			y_set = (add_level_vars(str(levelv), point_list, str(xaxis), str(yaxis), x_index_dict, y_index_dict, xaxis_dict, levelv_dict))
-			
-			#annoying fix to get particle moistion to save; keep directly above render template or
-			#everything will break
-			point_list[7]=point_list[7]*1000
-
 			#udpate page
-			return render_template('base.html', point_list = point_list, xaxis_nums = xaxis_points, yaxis_nums = y_set, x_range = x_range, y_range = y_range, key_labels = levelv_points, radio_points = radio_points, axis_labels = axis_labels)
+			return (render_template('base.html', point_list = point_list, xaxis_nums = xaxis_points, yaxis_nums = y_set, x_range = x_range, y_range = y_range, key_labels = levelv_points, radio_points = radio_points, axis_labels = axis_labels) and redirect(url_for('gui_test', xaxis=uxaxis, yaxis=uyaxis, levelv=ulevelv, mws=umws, bsa=ubsa, bw=ubw, fd=ufd, fl=ufl, igd=uigd, pd=upd, pm=upm, fcont=ufcont, fcs=ufcs, fgs=ufgs, wc=uwc, wa=uwa, wp=uwp)))
 		
-		else:
-			#only really used on startup, init values
-			point_list=[0,50,0,0.2,0,0.2,2.0,2,10,0,4,0]
-			xaxis_nums=[0,1]
-			yaxis_nums=[0,1]
-			x_range=["wind_mean", 0, 1]
-			y_range=["spread_rate", 0, 1]
-			key_labels=[0,0,0,0,0,0,0,0,0,0,"particle_moisture"]
-			init_radio_points = [0,0]
-			init_axis_labels = [axis_label_dict.get('bed_slope_angle'), axis_label_dict.get('spread_rate'), axis_label_dict.get('bed_width')]
-			return render_template('base.html', point_list = point_list, xaxis_nums = xaxis_points, yaxis_nums = yaxis_points, x_range = x_range, y_range = y_range, key_labels = key_labels, radio_points = init_radio_points, axis_labels = init_axis_labels)
+		return render_template('base.html', point_list = point_list, xaxis_nums = xaxis_points, yaxis_nums = y_set, x_range = x_range, y_range = y_range, key_labels = levelv_points, radio_points = radio_points, axis_labels = axis_labels) 
 
 	return app
