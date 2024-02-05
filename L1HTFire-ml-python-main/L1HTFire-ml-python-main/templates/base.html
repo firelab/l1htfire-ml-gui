@@ -14,6 +14,8 @@
 <img src="{{ url_for('static', filename='fs.png') }}" alt="USFS" width="100">
 <img src="{{ url_for('static', filename='google.png') }}" alt="Google" width="150">
 
+<link rel="shortcut icon" href="{{ url_for('static', filename='favicon_new.ico') }}">
+
 {% block header %}
 	<h1>{% block title %}L1HTFIRE-ML{% endblock %}</h1>
 	<p1>The L1HTFire model (Linear 1-Dimensional Heat Transfer) is a physics-based wildland fire spread model created by the USFS Missoula Fire Sciences Laboratory. This is a Machine Learning (ML) surrogate of L1HTFire and displays three output variables: fire spread rate, flame zone depth, and flame length. <b>Google Research</b> created the ML version using 575 million training runs of the physical model. The ML surrogate model is hosted here for demonstration purposes only in order to illustrate how wildland fire behavior results from the complex relationships between environmental and fire variables. A full description of this model can be found in Wildland Fire Behaviour (Finney, M.A., McAllister, S.S., Forthofer, J.M. and Grumstrup, T.P., 2021. <i>Wildland Fire Behaviour: Dynamics, Principles and Processes.</i> CSIRO PUBLISHING.)</p1><br><br>
@@ -264,7 +266,7 @@
 
 		<!Ignition Depth>
 		<div><br><br>
-		<label for="igd">Igntion Depth (meters):</label><br>
+		<label for="igd">Ignition Depth (meters):</label><br>
 		<p>Value: <output id="igd_out"></output></p>
 		<input type="range" name="igd" id="igd" min="0.1" max="4.1" step="0.02" value="{{ point_list[6] }}" list="igd_markers">
 
