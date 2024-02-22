@@ -278,7 +278,7 @@ def create_app():
 			w_code = 0.0
 			radio_points[0]=0
 		else:
-			w_code = 0.0
+			w_code = 1.0
 			radio_points[0]=1
 
 		if fcont == 'Continuous':
