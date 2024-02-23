@@ -12,7 +12,7 @@ On Linux, to run on local machine, download contents of repository, create and a
 
 Use pip to install dependencies:
 
-`pip install [package name]`
+`pip install -r requirements.txt`
 
 Run app using streamlit command:
 
