@@ -3,7 +3,7 @@ Hannah Pinkerton, Missoula Fire Lab, February 2024
 Python Version: 3.10
 Dependencies: streamlit, tensorflow, pandas, numpy, plotly
 
-On Linux, to run on local machine, create and activate python virtual environment:
+On Linux, to run on local machine, download contents of repository, create and activate python virtual environment:
 
 `python3.10 -m venv .venv`
 
