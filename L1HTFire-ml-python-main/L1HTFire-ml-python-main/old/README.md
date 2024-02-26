@@ -13,6 +13,6 @@ To install using wheel file and waitress:
 run `pip install [wheel]` and `pip install waitress`
 
 To launch app:
-`waitress-serve --call 'web_app:create_app'`
+`waitress-serve --call 'app:create_app'`
 
 Note that tensorflow will spit out some warnings to the command prompt; these can safely be ignored.
