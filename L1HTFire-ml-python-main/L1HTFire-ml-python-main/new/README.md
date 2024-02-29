@@ -20,7 +20,7 @@ Run app using streamlit command:
 
 To use docker file, ensure docker is installed and run:
 
-`docker build -t streamlit_app`
+`docker build -t streamlit_app .`
 
 Check installation with:
 
