@@ -2,6 +2,9 @@
 #Hannah Pinkerton, February 2024,
 #Missoula Fire Lab
 
+#ADD RANGE BUG FIX!! - see new_app.py - fixes post-copied url behavior
+#also fix column size
+
 import streamlit as st
 import tensorflow as tf
 import pandas as pds
@@ -13,18 +16,18 @@ import time
 
 #lookup dictionaries
 xaxis_dict = {
-	'Bed Slope Angle (degrees)' : [0, 30, 9],
-	'Bed Width (m)' : [1, 100, 9],
-	'Fuel Clump Size (m)' : [0.5 , 2, 9],
-	'Fuel Depth (m)' : [0.05, 1, 9],
-	'Fuel Gap Size (m)' : [0.1, 0.5, 9],
-	'Fuel Loading (kg/m^3)' : [0.05, 3, 9],
-	'Ignition Depth (m)' : [0.1, 4, 9],
-	'Particle Diameter (mm)' : [.0005, .005, 9],
-	'Particle Moisture (%)' : [2, 35, 9],
-	'Wind Amplitude (fraction)' : [0.2, 1, 9],
-	'Mean Wind Speed (m/s)' : [0, 10, 9],
-	'Wind Period (s)' : [1, 5, 9]
+	'Bed Slope Angle (degrees)' : [0.0, 30.0, 0.3],
+	'Bed Width (m)' : [1.0, 100.0, 0.5],
+	'Fuel Clump Size (m)' : [0.5 , 2.0, 0.01],
+	'Fuel Depth (m)' : [0.05, 1.0, 0.01],
+	'Fuel Gap Size (m)' : [0.1, 0.5, 0.004],
+	'Fuel Loading (kg/m^3)' : [0.05, 3.0, 0.05],
+	'Ignition Depth (m)' : [0.1, 4.0, 0.02],
+	'Particle Diameter (mm)' : [0.0005, 0.005, 0.00002],
+	'Particle Moisture (%)' : [2.0, 35.0, 0.25],
+	'Wind Amplitude (fraction)' : [0.2, 1.0, 0.01],
+	'Mean Wind Speed (m/s)' : [0.0, 10.0, 0.1],
+	'Wind Period (s)' : [1.0, 5.0, 0.04]
 }
 
 yaxis_dict = {
@@ -85,7 +88,6 @@ wc_index_dict = {
 model_filename = 'ml_model'
 model_path = (str(os.getcwd()) + '/' + model_filename)
 model = tf.keras.models.load_model(model_path)
-print('model loaded')
 
 tf.compat.v1.enable_eager_execution()
 
@@ -98,7 +100,17 @@ def set_axis(ax_dict, name, num_steps):
 	val = ax_min
 	step = (ax_max-ax_min)/num_steps
 	while len(axis_points) <= num_steps:
-		axis_points.append(round(val,1))
+		axis_points.append(val) #round here
+		val += step
+	return axis_points
+
+#handles case of user selected domain
+def new_set_axis(mini, maxi, num_steps):
+	axis_points = []
+	val = mini
+	step = (maxi-mini)/num_steps
+	while len(axis_points) <= num_steps:
+		axis_points.append(val) # round here
 		val += step
 	return axis_points
 
@@ -149,7 +161,7 @@ def set_y_nums(name, pred_vals, sel_dict):
 	index = sel_dict.get(name)
 	y_list = []
 	for nested in pred_vals:
-		y_list.append(round(nested[index],1))
+		y_list.append(nested[index])#roudn ehre
 	return y_list
 
 
@@ -162,12 +174,11 @@ def create_data_line(x_points, name_yaxis, y_dict):
 	return y_list
 
 #returns nested list of y_list values for graphing lines with level variable
-def add_level_vars(name_level, point_list, name_xaxis, name_yaxis, x_dict_index, y_dict_index, x_dict, l_dict):
+def add_level_vars(name_level, point_list, name_xaxis, name_yaxis, x_dict_index, y_dict_index, l_dict, xaxis_points):
 	levelv_set = []
 	y_set = []
 	index_x = x_dict_index.get(str(name_xaxis))
 	index_l = x_dict_index.get(str(name_level))
-	xaxis_points = set_axis(x_dict, name_xaxis, 199) #int is number of datapoints on x-axis
 	levelv_points = set_axis(l_dict, name_level, 9) #int is number of lines drawn for level variable
 	l_points_list = get_xaxis_points(levelv_points, point_list, index_l)
 	
@@ -203,10 +214,13 @@ def create_gui():
 
 	st.markdown(intro)
 
+	range_help = "Select the minimum and maximum x-axis sample values."
+	max_help = "Select the number of values to be sampled for the range specified above."
+
 	#columns
 	col0, col1, col2, col3 = st.columns(4, gap="medium")
 
-	key_list = ["bsa", "bw", "fcs", "fd", "fgs", "fl", "igd", "pd", "pm", "wa", "mws", "wp", "wc", "fcont", "xaxis", "yaxis", "levelv"]
+	key_list = ["bsa", "bw", "fcs", "fd", "fgs", "fl", "igd", "pd", "pm", "wa", "mws", "wp", "wc", "fcont", "xaxis", "yaxis", "levelv", "max_vals"]
 	value_list = []
 
 	#lists for dropdown menu
@@ -229,7 +243,7 @@ def create_gui():
 		with col1:
 
 			bw = st.slider("Bed Width (m)", 1.0, 100.0, 50.0, 0.5, key="bw")
-			fd = st.slider("Fuel Depth (m)", 0.5, 1.0, 0.2, 0.01, key="fd")
+			fd = st.slider("Fuel Depth (m)", 0.05, 1.0, 0.2, 0.01, key="fd")
 			fl = st.slider("Fuel Loading (kg/m^3)", 0.05, 3.0, 0.2, 0.05, key="fl")
 			igd = st.slider("Ignition Depth (m)", 0.1, 4.0, 2.0, 0.02, key="igd")
 			pd = st.slider("Particle Diameter (mm)", 0.5, 5.0, 2.0, 0.02, key="pd")
@@ -249,6 +263,9 @@ def create_gui():
 			fgs = st.slider("Fuel Gap Size (m)", 0.1, 0.5, 0.1, 0.004, disabled=True, key="fgs")
 			fc_code = 0
 
+		x_range_vals = st.slider("Range of X-value Samples", 0.0, 10.0, [0.0, 10.0], 0.1, key="xr_vals", help=range_help)
+		max_vals = st.slider("Number of X-value Samples", 50, 500, 200, 10, key="max_vals", help=max_help)
+	
 	#every other update to web page			
 	else:
 		#handles case where user has copied url; restartes page but uses url parameters for defaults
@@ -281,9 +298,9 @@ def create_gui():
 				bw = st.slider("Bed Width (m)", 1.0, 100.0, float(param_dict.get("bw")), 0.5, key="bw")
 
 			if xaxis == "Fuel Depth (m)" or levelv == "Fuel Depth (m)":
-				fd = st.slider("Fuel Depth (m)", 0.5, 1.0, float(param_dict.get("fd")), 0.01, disabled=True, key="fd")
+				fd = st.slider("Fuel Depth (m)", 0.05, 1.0, float(param_dict.get("fd")), 0.01, disabled=True, key="fd")
 			else:
-				fd = st.slider("Fuel Depth (m)", 0.5, 1.0, float(param_dict.get("fd")), 0.01, key="fd")
+				fd = st.slider("Fuel Depth (m)", 0.05, 1.0, float(param_dict.get("fd")), 0.01, key="fd")
 
 			if xaxis == "Fuel Loading (kg/m^3)" or levelv == "Fuel Loading (kg/m^3)":
 				fl = st.slider("Fuel Loading (kg/m^3)", 0.05, 3.0, float(param_dict.get("fl")), 0.05, disabled=True, key="fl")
@@ -358,7 +375,24 @@ def create_gui():
 			else:
 				fcs = st.slider("Fuel Clump Size (m)", 0.5, 2.0, float(param_dict.get("fcs")), 0.01, key="fcs")
 				fgs = st.slider("Fuel Gap Size (m)", 0.1, 0.5, float(param_dict.get("fgs")), 0.004, key="fgs")
-	
+
+		if 'xr_vals' not in st.session_state and xaxis != "Particle Diameter (mm)":
+			min_max = st.query_params.get_all('xr_vals')
+			x_range_vals = st.slider("Range of X-value Samples", float(xaxis_dict.get(xaxis)[0]), float(xaxis_dict.get(xaxis)[1]), [float(min_max[0]), float(min_max[1])], float(xaxis_dict.get(xaxis)[2]), key="xr_vals", help=range_help)
+		elif 'xr_vals' not in st.session_state and xaxis == "Particle Diameter (mm)":
+			min_max = st.query_params.get_all('xr_vals')
+			x_range_vals = st.slider("Range of X-value Samples", float(xaxis_dict.get(xaxis)[0])*1000, float(xaxis_dict.get(xaxis)[1])*1000, [float(min_max[0]), float(min_max[1])], float(xaxis_dict.get(xaxis)[2])*1000, key="xr_vals", help=range_help)
+		elif xaxis == "Particle Diameter (mm)":
+			x_range_vals = st.slider("Range of X-value Samples", float(xaxis_dict.get(xaxis)[0])*1000, float(xaxis_dict.get(xaxis)[1])*1000, [float(xaxis_dict.get(xaxis)[0])*1000, float(xaxis_dict.get(xaxis)[1])*1000], float(xaxis_dict.get(xaxis)[2])*1000, key="xr_vals", help=range_help)
+		#ha checks if xaxis has changed-- session_state updates query params at end of run
+		elif str(st.query_params.xaxis) == str(param_dict.get("xaxis")):
+			min_max = param_dict.get('xr_vals')
+			x_range_vals = st.slider("Range of X-value Samples", float(xaxis_dict.get(xaxis)[0]), float(xaxis_dict.get(xaxis)[1]), [float(min_max[0]), float(min_max[1])], float(xaxis_dict.get(xaxis)[2]), key="xr_vals", help=range_help)
+		else:
+			x_range_vals = st.slider("Range of X-value Samples", float(xaxis_dict.get(xaxis)[0]), float(xaxis_dict.get(xaxis)[1]), [float(xaxis_dict.get(xaxis)[0]), float(xaxis_dict.get(xaxis)[1])], float(xaxis_dict.get(xaxis)[2]), key="xr_vals", help=range_help)
+		
+		max_vals = st.slider("Number of X-value Samples", 50, 500, int(param_dict.get("max_vals")), 10, key="max_vals", help=max_help)
+
 	#handles wind case/fuel continuity cases	
 	if wc == "Constant":
 		wc_code = 0
@@ -391,9 +425,12 @@ def create_gui():
 	value_list.append(wc_code)
 
 	#retrieves model data
-	xaxis_points = set_axis(xaxis_dict, str(xaxis), 199) #number of points on graph
+	if xaxis == "Particle Diameter (mm)":
+		xaxis_points = new_set_axis(x_range_vals[0]/1000, x_range_vals[1]/1000, max_vals-1) #number of points on graph
+	else:
+		xaxis_points = new_set_axis(x_range_vals[0], x_range_vals[1], max_vals-1) #number of points on graph
 	model_x = get_xaxis_points(xaxis_points, value_list, x_index_dict.get(xaxis))
-	y_set = (add_level_vars(str(levelv), value_list, str(xaxis), str(yaxis), x_index_dict, y_index_dict, xaxis_dict, levelv_dict))	
+	y_set = (add_level_vars(str(levelv), value_list, str(xaxis), str(yaxis), x_index_dict, y_index_dict, levelv_dict, xaxis_points))	
 	levelv_names = set_axis(levelv_dict, levelv, 9)
 
 	#returns particle diameter to mm
@@ -411,6 +448,13 @@ def create_gui():
 			xaxis_points[i] = mult_xaxis[i]*1000
 			i+=1
 
+	j = 0
+	while j < len(levelv_names):
+		conc_level = levelv_names.copy()
+		levelv_names[j] = round(conc_level[j],2)
+		j+=1
+
+
 	#graph
 	fig = go.Figure()
 
@@ -426,11 +470,14 @@ def create_gui():
 	fig.add_trace(go.Scatter(x=xaxis_points, y=y_set[8], name=levelv_names[8], line=dict(dash='dash')))
 	fig.add_trace(go.Scatter(x=xaxis_points, y=y_set[9], name=levelv_names[9], line=dict(dash='dot')))
 
+	fig.update_traces(hovertemplate = "(%{x: .4r}, %{y: .4r})")
+
 	#graph labels
 	fig.update_layout(title="Predictions",
 		xaxis_title=xaxis,
 		yaxis_title=yaxis,
-		legend_title=levelv)
+		legend_title=levelv,
+		height=800)
 
 	#creates graph on web page
 	st.plotly_chart(fig, use_container_width=True)
