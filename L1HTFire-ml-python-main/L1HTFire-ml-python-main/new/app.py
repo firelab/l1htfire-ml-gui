@@ -2,9 +2,6 @@
 #Hannah Pinkerton, February 2024,
 #Missoula Fire Lab
 
-#ADD RANGE BUG FIX!! - see new_app.py - fixes post-copied url behavior
-#also fix column size
-
 import streamlit as st
 import tensorflow as tf
 import pandas as pds
