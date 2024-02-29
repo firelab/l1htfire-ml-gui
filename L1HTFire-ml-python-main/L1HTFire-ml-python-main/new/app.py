@@ -227,7 +227,7 @@ def create_gui():
 	levelv_list = xaxis_list.copy()
 
 	#initialize app with widgets
-	if "xaxis" not in st.session_state and len(st.query_params.to_dict()) == 0:
+	if ("xaxis" not in st.session_state and len(st.query_params.to_dict()) == 0) or "xr_vals" not in st.query_params:
 
 		with col0:
 
