@@ -197,13 +197,13 @@ def create_gui():
 	#image paths, change here for new favicon
 	favicon_path = (str(os.getcwd() + '/static/favicon_new.ico'))
 	fs_image_path = (str(os.getcwd()) + '/static/fs.png')
-	google_image_path = (str(os.getcwd()) + '/static/google.png')
+	google_image_path = (str(os.getcwd()) + '/static/google_research.png')
 
 	#app setup
 	st.set_page_config(page_title="L1HTFire-ML", page_icon=favicon_path, layout="wide")
 
-	st.image(fs_image_path, width=75)
-	st.image(google_image_path, width=150)
+	st.image(fs_image_path, width=100)
+	st.image(google_image_path, width=400)
 
 	st.title("L1HTFire-ML")
 
