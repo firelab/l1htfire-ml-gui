@@ -32,4 +32,4 @@ You should see a repository named streamlit_app. Then to run app:
 
 To run the app on the production server:
 
-`streamlit run app.py --server.enableCORS=false --server.enableXsrfProtection=false --server.enableWebsocketCompression=false --server.port 8501`
+    streamlit run app.py --server.enableCORS=false --server.enableXsrfProtection=false --server.enableWebsocketCompression=false --server.port 8501
