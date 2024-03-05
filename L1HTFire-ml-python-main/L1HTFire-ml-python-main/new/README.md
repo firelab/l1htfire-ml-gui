@@ -29,3 +29,7 @@ Check installation with:
 You should see a repository named streamlit_app. Then to run app:
 
 `docker run streamlit_app`
+
+To run the app on the production server:
+
+`streamlit run app.py --server.enableCORS=false --server.enableXsrfProtection=false --server.enableWebsocketCompression=false`
