@@ -1,6 +1,6 @@
 #streamlit version of spread gui
-#Hannah Pinkerton, February 2024,
-#Missoula Fire Lab
+#Hannah Pinkerton, hannah.pinkerton@usda.gov
+#Missoula Fire Lab, February 2024
 
 
 import streamlit as st
