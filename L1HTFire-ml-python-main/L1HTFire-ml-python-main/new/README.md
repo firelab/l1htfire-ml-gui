@@ -1,7 +1,7 @@
-#L1HTFire-ML Gui, Python streamlit version
-Hannah Pinkerton, Missoula Fire Lab, February 2024
-Python Version: 3.10
-Dependencies: streamlit, tensorflow, pandas, numpy, plotly
+# L1HTFire-ML Gui, Python streamlit version  
+Hannah Pinkerton, Missoula Fire Lab, February 2024  
+Python Version: 3.10  
+Dependencies: streamlit, tensorflow, pandas, numpy, plotly  
 
 On Linux, to run on local machine, download contents of repository, create and activate python virtual environment:
 
