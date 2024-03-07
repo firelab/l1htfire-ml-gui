@@ -81,7 +81,6 @@ wc_index_dict = {
 	'Sine' : 1
 }
 
-
 #model setup
 model_filename = 'ml_model'
 model_path = (str(os.getcwd()) + '/' + model_filename)
@@ -192,8 +191,7 @@ def add_level_vars(name_level, point_list, name_xaxis, name_yaxis, x_dict_index,
 
 	return y_set	
 
-def create_gui():
-	
+def create_gui():	
 	#image paths, change here for new favicon
 	favicon_path = (str(os.getcwd() + '/static/favicon_new.ico'))
 	fs_image_path = (str(os.getcwd()) + '/static/fs.png')
@@ -396,7 +394,6 @@ def create_gui():
 		wc_code = 0
 		wa = 0.0
 		wp = 0.0
-
 	else:
 		wc_code = 1
 
@@ -427,6 +424,7 @@ def create_gui():
 		xaxis_points = new_set_axis(x_range_vals[0]/1000, x_range_vals[1]/1000, max_vals-1) #number of points on graph
 	else:
 		xaxis_points = new_set_axis(x_range_vals[0], x_range_vals[1], max_vals-1) #number of points on graph
+		
 	model_x = get_xaxis_points(xaxis_points, value_list, x_index_dict.get(xaxis))
 	y_set = (add_level_vars(str(levelv), value_list, str(xaxis), str(yaxis), x_index_dict, y_index_dict, levelv_dict, xaxis_points))	
 	levelv_names = set_axis(levelv_dict, levelv, 9)
@@ -451,7 +449,6 @@ def create_gui():
 		conc_level = levelv_names.copy()
 		levelv_names[j] = round(conc_level[j],2)
 		j+=1
-
 
 	#graph
 	fig = go.Figure()
@@ -496,6 +493,5 @@ def create_gui():
 		st.query_params[key] = param_dict.get(key)
 
 	return value_list
-
 
 create_gui()
