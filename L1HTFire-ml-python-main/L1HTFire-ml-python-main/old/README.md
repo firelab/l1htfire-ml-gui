@@ -1,10 +1,10 @@
-#L1HTF1re ML spread gui, flask version
-Hannah Pinkerton, Missoula Fire Lab, January 2024
-Python Version: Python 3.10
-Dependencies: flask, tensorflow
+# L1HTF1re ML spread gui, flask version  
+Hannah Pinkerton, Missoula Fire Lab, January 2024  
+Python Version: Python 3.10  
+Dependencies: flask, tensorflow  
 
 To run on local machine, download repository contents, create and activate virtual environment:
-`python3.10 -m venv .venv`
+`python3.10 -m venv .venv`  
 `. .venv/bin/activate`
 
 run `flask --app app.py run`
