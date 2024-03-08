@@ -1,4 +1,6 @@
-# Carousel ML Model Gui
+# Carousel ML Model Gui    
+This is the version hosted on the server at ninjastorm.firelab.org/carousel.  
+
 Hannah Pinkerton, Missoula Fire Lab, Winter 2024  
 Python Version: 3.10  
 Dependencies: see requirements.txt  
