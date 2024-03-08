@@ -1,30 +1,31 @@
-Carousel ML Model Gui
-Hannah Pinkerton, Missoula Fire Lab, Winter 2024
-Python Version: 3.10
-Dependencies: see requirements.txt
+# Carousel ML Model Gui  
+Not hosted on the server, uses most recent model with linear outputs  
+Hannah Pinkerton, Missoula Fire Lab, Winter 2024  
+Python Version: 3.10  
+Dependencies: see requirements.txt  
 
 ON LINUX:
-	To run on local machine, download contents of repository, create and activate python virtual environment
+To run on local machine, download contents of repository, create and activate python virtual environment  
 
-		python3.10 -m venv .venv
-		. .venv/bin/activate
+`python3.10 -m venv .venv`  
+`. .venv/bin/activate`
 
-	Use pip to install dependences:
-		pip install -r requirements.txt
+Use pip to install dependences:  
+`pip install -r requirements.txt`  
 
-	Run app using streamlit command:
-		streamlit run app.py
+Run app using streamlit command:  
+`streamlit run newest_caro.py`  
 
-	To run using docker file, ensure docker is installed.
-	If not: https://docs.docker.com/engine/install/#server
+To run using docker file, ensure docker is installed.  
+If not: https://docs.docker.com/engine/install/#server  
 
-	To build app using docker run:
-		docker build -t carousel_ml .
+To build app using docker run:  
+`docker build -t carousel_ml_new .`
 
-	Check installation with:
-		docker images
+Check installation with:  
+`docker images`  
 
-	You should see a repo named carousel_ml
+You should see a repo named carousel_ml  
 
-	Then run app:
-		docker run carousel_ml
+Then run app:  
+`docker run carousel_ml_new`
