@@ -8,7 +8,7 @@ import numpy as np
 import math
 
 #model setup
-model_filename = 'par_model_final/par_model'
+model_filename = 'par_model_final/par_model' #change model here if needed
 model_path = (str(os.getcwd()) + '/' + model_filename)
 model = tf.keras.models.load_model(model_path)
 
@@ -33,12 +33,6 @@ x_index_dict = {
 	"Wind Speed (m/s)" : 4,
 	"Flame Depth (m)" : 5
 }
-
-def basic_preds(input_list):
-	feature_batch = tf.constant([input_list])
-	prediction_as_tensor = model(feature_batch)
-	prediction_as_list = prediction_as_tensor.numpy().tolist()[0]
-	return prediction_as_list
 
 #sets values for x_axis points
 #inputs: range dictionary, variable selection name, number of points desired
@@ -76,6 +70,8 @@ def get_xaxis_points(axis_list, vals_list, index):
 	return pred_list
 
 #takes list of inputs and feeds to ml model, returns list of predictions
+#I'm taking the log of the list of x-coordinates and feeding them into the linear equation produced by the model
+#The e^(resultant y-valus) is what is displayed on the graph
 def create_pred_set(single_list, xaxis_points):
 	tensor_list = []
 	pred_list = []
@@ -108,22 +104,13 @@ def add_level_vars(name_level, point_list, x_dict_index, x_dict, xaxis_points):
 	y_set = []
 	index_l = x_dict_index.get(str(name_level))
 	levelv_points = set_axis(x_dict, name_level, 9) #int is number of lines drawn for level variable
-	l_points_list = get_xaxis_points(levelv_points, point_list, index_l)
+	l_points_list = get_xaxis_points(levelv_points, point_list, index_l) #nested list containing user-inputs with stepped levelv values
 	
-	#runs through all lines for level variable and changes x-axis variable to send to ml_model
-	#for axis in l_points_list:
-	#	new_vals = axis.copy()
-	#	new_list = get_xaxis_points(xaxis_points, new_vals, index_x)
-	#	levelv_set.append(new_list)
-	#print((l_points_list))
-	#print((levelv_set[0]))
-	#appends y-variables for each level variable line
-	#print(l_points_list)
 	for line in l_points_list:
 		y_set.append(create_pred_set(line, xaxis_points))
 	return y_set
 
-#does the cool stuff
+#creates the graph
 def graph_results(widget_inputs, x_name, l_name, lnx, lny, xr_min, xr_max, max_vals):
 	x_points = new_set_axis(xr_min, xr_max, max_vals)
 	levelv_names = set_axis(xaxis_dict, l_name, 9)
@@ -148,7 +135,8 @@ def graph_results(widget_inputs, x_name, l_name, lnx, lny, xr_min, xr_max, max_v
 		xaxis_title=x_name,
 		yaxis_title="Temperature",
 		legend_title=l_name)
-
+	
+	#create log axes
 	if lny == True:	
 		fig.update_yaxes(type="log")
 	if lnx == True:
@@ -157,6 +145,7 @@ def graph_results(widget_inputs, x_name, l_name, lnx, lny, xr_min, xr_max, max_v
 	#creates graph on web page
 	st.plotly_chart(fig, use_container_width=True)
 
+	#nested list of y_values for .csv download
 	return_list = []
 	return_list.append(x_points)
 	i = 0
@@ -250,8 +239,6 @@ def create_gui():
 		val_list.append(st.session_state[key])
 
 	res=graph_results(val_list, "Distance (m)", levelv, log_x, log_y, xr_min, xr_max, max_vals)
-
-	i=0
 
 	dat = np.array(res)
 	new_dat = np.transpose(dat)
