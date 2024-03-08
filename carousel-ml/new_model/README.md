@@ -1,5 +1,6 @@
 # Carousel ML Model Gui  
 Not hosted on the server, uses most recent model with linear outputs  
+See line 75 in newest_caro.py for how the graph is getting the predictions  
 Hannah Pinkerton, Missoula Fire Lab, Winter 2024  
 Python Version: 3.10  
 Dependencies: see requirements.txt  
