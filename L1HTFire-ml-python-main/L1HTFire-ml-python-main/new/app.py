@@ -82,7 +82,7 @@ wc_index_dict = {
 }
 
 #model setup
-model_filename = 'ml_model'
+model_filename = 'combined_autonorm_r2v4.h5'
 model_path = (str(os.getcwd()) + '/' + model_filename)
 model = tf.keras.models.load_model(model_path)
 
