@@ -1,6 +1,6 @@
 # Carousel ML Model GUI  
 Model Visualizer, see predictions from both ml and statistical model, or look at true test data and compare the models' fit to that data
-uses most recent UNIT_norm model from John Burge 
+[uses most recent UNIT_norm model from John Burge]
 Nathan Kahla, Missoula Fire Lab, June 2024
 
 Python Version: 3.11.9 (pre- 3.12 required for using Tensorflow 2.15)
