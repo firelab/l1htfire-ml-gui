@@ -10,11 +10,6 @@ import numpy as np
 import math
 import usfs_carousel
 
-#6/28 Features to add:
-#CHECK -alternate generate level variable input values
-#-slider mode and a burn lookup mode where test burns from the csv can be looked up to introduce True values
-#-calculate error in burn lookup mode between predictions
-
 tf.compat.v1.enable_eager_execution()
 # TODO: had to move this out of create_gui() bc for some reason that function was executing twice for me,
 # 	so this was killing the app the second time it ran
@@ -140,26 +135,6 @@ def generate_level_variable_input_valuesII(level_variable : Static_Feature, slid
         level_variable_input_values.append(val)
         val += step
     return level_variable_input_values
-  
-
-# def generate_level_variable_input_values(level_variable: Static_Feature):
-# 	"""
-# 	Calculate values to be used for each level variable trace. Does not include a match with the statistical model, and does an even spread across the whole range
-
-# 	Inputs:
-# 	name: level_var selection name
-# 	"""
-# 	level_variable_traces_count = 5
- 
-# 	level_variable_input_values = []
-# 	axis_min = level_variable.min
-# 	axis_max = level_variable.max
-# 	val = axis_min
-# 	step = (axis_max-axis_min)/(level_variable_traces_count-1)
-# 	while len(level_variable_input_values) < level_variable_traces_count:
-# 		level_variable_input_values.append(val)
-# 		val += step
-# 	return level_variable_input_values
 
 def get_x_axis_points(x_range_min, x_range_max, x_value_sample_count):
 	'''
@@ -468,10 +443,16 @@ def graph_results(slider_values: dict, level_variable: Static_Feature, lnx, lny,
             fig.add_trace(go.Scatter(x=x_points, y=stat_y_set, name=f"Statistical Model: {level_var_values[0]:.2f}", line=dict(color="black")))
 
     #graph labels
-    fig.update_layout(title="Predictions",
-        xaxis_title="Distance (m)",
-        yaxis_title="Temperature (C)",
-        legend_title=level_variable.short_name)
+    if burn_lookup_mode:
+        fig.update_layout(title="Predictions vs True Values",
+            xaxis_title="Distance (m)",
+            yaxis_title="Temperature (C)",
+            legend_title="Legend")
+    else:
+        fig.update_layout(title="Predictions",
+            xaxis_title="Distance (m)",
+            yaxis_title="Temperature (C)",
+            legend_title=f"Level Variable:{level_variable.short_name}")
 
     #create log axes
     if lny == True:	
@@ -575,10 +556,10 @@ def create_gui():
     with col2:
         log_x = st.toggle("Log X-Axis", value=st.session_state.get("log_x", False), key="log_x")
         log_y = st.toggle("Log Y-Axis", value=st.session_state.get("log_y", False), key="log_y")
-        x_value_sample_count = st.slider("Number of X-value Samples", 50, 500, st.session_state.get("x_value_sample_count", 200), 10, key="x_value_sample_count")
+        x_value_sample_count = st.slider("Number of X-value Samples", 50, 500, st.session_state.get("x_value_sample_count", 200), 10, key="x_value_sample_count", disabled= burn_lookup_mode)
     with col3:
-        xr_min = st.number_input("Minimum of X-axis Sample Range", 0.0001, 1.25, float(st.session_state.get("xr_min", 0.0001)), key="xr_min")
-        xr_max = st.number_input("Maximum of X-axis Sample Range", 0.0001, 1.25, float(st.session_state.get("xr_max", 1.25)), key="xr_max")
+        xr_min = st.number_input("Minimum of X-axis Sample Range", 0.0001, 1.25, float(st.session_state.get("xr_min", 0.0001)), key="xr_min", disabled= burn_lookup_mode)
+        xr_max = st.number_input("Maximum of X-axis Sample Range", 0.0001, 1.25, float(st.session_state.get("xr_max", 1.25)), key="xr_max", disabled= burn_lookup_mode)
 
     slider_values = {}
 	# code just for debugging headlessly
