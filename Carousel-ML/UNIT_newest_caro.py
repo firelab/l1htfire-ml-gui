@@ -11,8 +11,7 @@ from ml_collections import config_dict as cd
 
 
 tf.compat.v1.enable_eager_execution()
-# TODO: had to move this out of create_gui() bc for some reason that function was executing twice for me,
-# 	so this was killing the app the second time it ran
+
 st.set_page_config(page_title="Carousel ML", page_icon=":fire:", layout="wide")
 
 class Static_Feature(object):
@@ -240,7 +239,7 @@ def select_cfg():
     return cfg
 
 def get_csv_data(cfg):
-    data_path = r"C:\Users\Natha\Documents\Carousel\Carousel ML Streamlit app\unit_norm\test_data.csv"
+    data_path = str(os.getcwd()) + '/unit_norm/test_data.csv'
     setup_data_columns(cfg)
     data = pds.read_csv(data_path)
     return data
