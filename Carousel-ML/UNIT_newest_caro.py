@@ -9,9 +9,9 @@ import plotly.graph_objects as go
 import numpy as np
 from ml_collections import config_dict as cd
 
-
 tf.compat.v1.enable_eager_execution()
-
+# TODO: had to move this out of create_gui() bc for some reason that function was executing twice for me,
+# 	so this was killing the app the second time it ran
 st.set_page_config(page_title="Carousel ML", page_icon=":fire:", layout="wide")
 
 class Static_Feature(object):
@@ -49,26 +49,26 @@ def get_io_config() -> cd.ConfigDict:
   """Returns the IO config."""
   cfg = cd.ConfigDict()
 
-  # The path to the raw data csv that is the exported file given to me by Isaac.
-#   cfg.input_raw_csv_path = r"C:\Users\Natha\Documents\Carousel\John's Carousel App\carousel (1).csv"
+#   # The path to the raw data csv that is the exported file given to me by Isaac.
+# #   cfg.input_raw_csv_path = r"C:\Users\Natha\Documents\Carousel\John's Carousel App\carousel (1).csv"
 
-#   # The ath that all files should be saved/read to/from.
-#   cfg.io_path = (
-#       r"C:\Users\Natha\Documents\Carousel\John's Carousel App\unitless_log")
+# #   # The ath that all files should be saved/read to/from.
+# #   cfg.io_path = (
+# #       r"C:\Users\Natha\Documents\Carousel\John's Carousel App\unitless_log")
 
-  # The filename for the model.
-  cfg.output_model_filename = 'model.h5'
+#   # The filename for the model.
+#   cfg.output_model_filename = 'model.h5'
 
-  # The filename to save the full dataset to.
-  cfg.output_data_filename = 'full_data.csv'
+#   # The filename to save the full dataset to.
+#   cfg.output_data_filename = 'full_data.csv'
 
-  # The filename to save the training, testing and validation data to.
-  cfg.output_train_filename = 'train_data.csv'
-  cfg.output_test_filename = 'test_data.csv'
-  cfg.output_val_filename = 'val_data.csv'
+#   # The filename to save the training, testing and validation data to.
+#   cfg.output_train_filename = 'train_data.csv'
+#   cfg.output_test_filename = 'test_data.csv'
+#   cfg.output_val_filename = 'val_data.csv'
 
-  # The name of the file to save the normalization coefficients to.
-  cfg.output_norm_filename = 'norm_coeffs.json'
+#   # The name of the file to save the normalization coefficients to.
+#   cfg.output_norm_filename = 'norm_coeffs.json'
 
   return cfg
 
@@ -217,14 +217,14 @@ def setup_data_columns(cfg: cd.ConfigDict):
 #end modules borrowed from Google
 
 def load_model():
-    model_filename = 'unit_norm\model.h5' # change model here if needed
-    model_path = os.path.join(os.getcwd(), model_filename)
+    # change model here if needed
+    model_path = str(os.getcwd() + '/unit_norm/model.h5')
     model = tf.keras.models.load_model(model_path)
     return model 
 
 def load_norm_coefficients():
 	norm_coeffs = {}
-	norm_path = os.path.join(os.getcwd(), "unit_norm", "norm_coeffs.json")
+	norm_path = str(os.getcwd() + '/unit_norm/norm_coeffs.json')
 	with open(norm_path, 'r') as f:
 		norm_coeffs = json.load(f)
 	
@@ -239,7 +239,7 @@ def select_cfg():
     return cfg
 
 def get_csv_data(cfg):
-    data_path = str(os.getcwd()) + '/unit_norm/test_data.csv'
+    data_path = str(os.getcwd() + '/unit_norm/test_data.csv')
     setup_data_columns(cfg)
     data = pds.read_csv(data_path)
     return data
@@ -308,26 +308,6 @@ def generate_level_variable_input_valuesII(level_variable : Static_Feature, slid
         val += step
     return level_variable_input_values
   
-
-# def generate_level_variable_input_values(level_variable: Static_Feature):
-# 	"""
-# 	Calculate values to be used for each level variable trace. Does not include a match with the statistical model, and does an even spread across the whole range
-
-# 	Inputs:
-# 	name: level_var selection name
-# 	"""
-# 	level_variable_traces_count = 5
- 
-# 	level_variable_input_values = []
-# 	axis_min = level_variable.min
-# 	axis_max = level_variable.max
-# 	val = axis_min
-# 	step = (axis_max-axis_min)/(level_variable_traces_count-1)
-# 	while len(level_variable_input_values) < level_variable_traces_count:
-# 		level_variable_input_values.append(val)
-# 		val += step
-# 	return level_variable_input_values
-
 def get_x_axis_points(x_range_min, x_range_max, x_value_sample_count):
 	'''
 	Handles case of user selected domain
@@ -449,7 +429,6 @@ def create_pred_set(pred_input_list: list, x_points: list, norm_coeffs: dict):
 
 	Returns: predictions denormalized
     '''
-
 
 	static_features_normalized = normalize_static_features(pred_input_list, norm_coeffs)
 	dynamic_feature_normalized = normalize_dynamic_feature(x_points, norm_coeffs)
