@@ -7,8 +7,8 @@ import pandas as pds
 import plotly.express as px
 import plotly.graph_objects as go
 import numpy as np
-import math
-import usfs_carousel
+from ml_collections import config_dict as cd
+
 
 tf.compat.v1.enable_eager_execution()
 # TODO: had to move this out of create_gui() bc for some reason that function was executing twice for me,
@@ -44,6 +44,179 @@ STATIC_FEATURE_LOOKUP = [
 	Static_Feature("width.meters", "Width (m)", 0.5, 0.5, 20.0, 2.6, 0.1),
 ]
 
+#Modules borrowed from Google
+
+def get_io_config() -> cd.ConfigDict:
+  """Returns the IO config."""
+  cfg = cd.ConfigDict()
+
+  # The path to the raw data csv that is the exported file given to me by Isaac.
+#   cfg.input_raw_csv_path = r"C:\Users\Natha\Documents\Carousel\John's Carousel App\carousel (1).csv"
+
+#   # The ath that all files should be saved/read to/from.
+#   cfg.io_path = (
+#       r"C:\Users\Natha\Documents\Carousel\John's Carousel App\unitless_log")
+
+  # The filename for the model.
+  cfg.output_model_filename = 'model.h5'
+
+  # The filename to save the full dataset to.
+  cfg.output_data_filename = 'full_data.csv'
+
+  # The filename to save the training, testing and validation data to.
+  cfg.output_train_filename = 'train_data.csv'
+  cfg.output_test_filename = 'test_data.csv'
+  cfg.output_val_filename = 'val_data.csv'
+
+  # The name of the file to save the normalization coefficients to.
+  cfg.output_norm_filename = 'norm_coeffs.json'
+
+  return cfg
+
+
+def get_data_config() -> cd.ConfigDict:
+  """Returns the data config."""
+  cfg = cd.ConfigDict()
+
+  # The columns in the input data that are the static columns.
+  cfg.static_features = ()
+
+  # The column in the input data that is the dynamic one.
+  # FILLED IN AUTOMATICALLY.
+  cfg.dynamic_feature = ''
+
+  # The column in the input data that is the dynamic label.
+  # FILLED IN AUTOMATICALLY.
+  cfg.dynamic_label = ''
+
+  # The meta column that identifies which rows get grouped together to make the
+  # same data point.
+  cfg.group_column = 'burn'
+
+  # Which set of features to use:  'unit', 'unitless'.
+  cfg.f_mode = 'unit'
+
+  # Which set of labels to use: 'norm', 'log'.
+  cfg.l_mode = 'norm'
+
+  return cfg
+
+
+def get_plot_config() -> cd.ConfigDict:
+  """Returns the plot config."""
+  cfg = cd.ConfigDict()
+
+  cfg.sweep_cmap = 'twilight'
+
+  return cfg
+
+
+def get_config() -> cd.ConfigDict:
+  """Returns the entire config."""
+  cfg = cd.ConfigDict()
+
+  cfg.io = get_io_config()
+  cfg.data = get_data_config()
+  cfg.plot = get_plot_config()
+
+  return cfg
+
+
+def get_unnorm_pred_batch(
+    cfg: cd.ConfigDict,
+    df: pds.DataFrame,
+    model: tf.keras.Model,
+    norm_coeffs
+) -> pds.Series:
+  """Performs batch predictions on unnorm'd data returning unnorm'd results."""
+  df_copy = df.copy()
+
+  # Extract and Normalize Static Features
+  static_features_normalized = (
+      df_copy[list(cfg.data.static_features)].apply(
+          lambda col: (
+              (col - norm_coeffs[col.name][0]) /
+              (norm_coeffs[col.name][1] - norm_coeffs[col.name][0])),
+          axis=0,
+      )).values
+
+  # Extract and Normalize Dynamic Feature
+  dynamic_feature = df_copy[[cfg.data.dynamic_feature]].values
+  dynamic_feature_normalized = (
+      (dynamic_feature - norm_coeffs[cfg.data.dynamic_feature][0]) / (
+          norm_coeffs[cfg.data.dynamic_feature][1]
+          - norm_coeffs[cfg.data.dynamic_feature][0]))
+
+  # Make Predictions
+  predictions_normalized = model.predict(
+      [static_features_normalized, dynamic_feature_normalized]
+  )
+
+  # Denormalize Predictions
+  predictions_denormalized = (
+      predictions_normalized
+      * (
+          norm_coeffs[cfg.data.dynamic_label][1]
+          - norm_coeffs[cfg.data.dynamic_label][0]
+      )
+      + norm_coeffs[cfg.data.dynamic_label][0]
+  )
+  return predictions_denormalized.flatten()
+
+def setup_data_columns(cfg: cd.ConfigDict):
+  """Sets up the config for various experiments.
+
+  Args:
+    cfg: the config.  It will be mutated.
+    f_mode: determines which columns to use for features.
+      'unit': Use unit features with for static features.
+      'unitless': Use the unitless static features.
+    l_mode: determines which columns to use for labels.
+      'norm': Use the non-logged values.
+      'log':  Use the log values.
+  """
+  if cfg.data.f_mode == 'unit':
+    print('Setting feature config to use unit features.')
+    cfg.data.static_features = (
+        'Angle.deg',
+        'FL(m)',
+        'FlameDepth.m',
+        'FlameVel.mps',
+        'Intensity.kwm',
+        'WindSpd.mps',
+        'slope.deg',
+        'width.meters',
+    )
+  elif cfg.data.f_mode == 'unitless':
+    print('Setting feature config to use unitless features.')
+    cfg.data.static_features = (
+        'd*',
+        'a*',
+        'f*',
+        's*',
+        'w*',
+        'd*s*',
+        'd*w*',
+        'd*a*',
+        'r*',
+        'Z*',
+    )
+  else:
+    raise ValueError('Unknown f_mode: ', f_mode)
+
+  if cfg.data.l_mode == 'norm':
+    print('Setting up config to use norm labels.')
+    cfg.data.dynamic_feature = 'Distance.m'
+    cfg.data.dynamic_label = 'Temp.C'
+  elif cfg.data.l_mode == 'log':
+    print('Setting up config to use log labels.')
+    cfg.data.dynamic_feature = 'ln(dist)'
+    cfg.data.dynamic_label = 'ln(Temp.C)'
+  else:
+    raise ValueError('Unknown l_mode: ', l_mode)
+
+#end modules borrowed from Google
+
 def load_model():
     model_filename = 'unit_norm\model.h5' # change model here if needed
     model_path = os.path.join(os.getcwd(), model_filename)
@@ -61,14 +234,14 @@ def load_norm_coefficients():
 # for burn_lookup_mode
 def select_cfg():
     #change unit & norm here if needed
-    cfg = usfs_carousel.get_config()
+    cfg = get_config()
     cfg.data.l_mode = "norm"
     cfg.data.f_mode = "unit"
     return cfg
 
 def get_csv_data(cfg):
     data_path = r"C:\Users\Natha\Documents\Carousel\Carousel ML Streamlit app\unit_norm\test_data.csv"
-    usfs_carousel.setup_data_columns(cfg)
+    setup_data_columns(cfg)
     data = pds.read_csv(data_path)
     return data
 
@@ -83,7 +256,7 @@ def get_selected_burn_data(cfg, burn_selection):
     
     true_values = data_1["Temp.C"].tolist()
     x_value_list = data_1["Distance.m"].tolist()
-    ml_pred = usfs_carousel.get_unnorm_pred_batch(cfg, data_1, load_model(), load_norm_coefficients())
+    ml_pred = get_unnorm_pred_batch(cfg, data_1, load_model(), load_norm_coefficients())
     stat_pred_list = []
     for idx in range(len(data_1)):
         stat_pred = calculate_ln_temp(x = data_1["Distance.m"].iloc[idx], intensity = data_1["Intensity.kwm"].iloc[idx], slope = data_1["slope.deg"].iloc[idx], angle = data_1["Angle.deg"].iloc[idx], windspeed= data_1["WindSpd.mps"].iloc[idx], fzdepth =  data_1["FlameDepth.m"].iloc[idx], fzwidth = data_1["width.meters"].iloc[idx])
@@ -135,6 +308,26 @@ def generate_level_variable_input_valuesII(level_variable : Static_Feature, slid
         level_variable_input_values.append(val)
         val += step
     return level_variable_input_values
+  
+
+# def generate_level_variable_input_values(level_variable: Static_Feature):
+# 	"""
+# 	Calculate values to be used for each level variable trace. Does not include a match with the statistical model, and does an even spread across the whole range
+
+# 	Inputs:
+# 	name: level_var selection name
+# 	"""
+# 	level_variable_traces_count = 5
+ 
+# 	level_variable_input_values = []
+# 	axis_min = level_variable.min
+# 	axis_max = level_variable.max
+# 	val = axis_min
+# 	step = (axis_max-axis_min)/(level_variable_traces_count-1)
+# 	while len(level_variable_input_values) < level_variable_traces_count:
+# 		level_variable_input_values.append(val)
+# 		val += step
+# 	return level_variable_input_values
 
 def get_x_axis_points(x_range_min, x_range_max, x_value_sample_count):
 	'''
