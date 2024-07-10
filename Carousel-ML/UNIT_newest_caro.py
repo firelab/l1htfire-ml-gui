@@ -9,9 +9,9 @@ import plotly.graph_objects as go
 import numpy as np
 from ml_collections import config_dict as cd
 
+
 tf.compat.v1.enable_eager_execution()
-# TODO: had to move this out of create_gui() bc for some reason that function was executing twice for me,
-# 	so this was killing the app the second time it ran
+
 st.set_page_config(page_title="Carousel ML", page_icon=":fire:", layout="wide")
 
 class Static_Feature(object):
@@ -31,16 +31,16 @@ class Static_Feature(object):
         return self.max
 
 
-#The order of this list dictates the order in which the features are passed to the TF model
+#The order of this list dictates the order in which the features are passed to the ML model
 STATIC_FEATURE_LOOKUP = [
 	Static_Feature("Angle.deg", "Angle (degrees)", 0.0, 0.00001, 90.0, 20.0, 1.0),
 	Static_Feature("FL(m)", "Flame Length (m)", 0.0, 0.00001, 1.0, 0.3, 0.05), # True max = .60687
-	Static_Feature("FlameDepth.m", "Flame Depth (m)", 0.1, 0.1, 0.7, 0.4, 0.01),
+	Static_Feature("FlameDepth.m", "Flame Depth (m)", 0.1, 0.1, 20.0, 0.4, .1),
 	Static_Feature("FlameVel.mps", "Flame Velocity (m/s)", 0.1, 0.00001, 2.0, 0.4, 0.1), # True max =  1.72587
 	Static_Feature("Intensity.kwm", "Intensity (kwm)", 40.0, 40.0, 1000.0, 85.0, 5.0),
 	Static_Feature("WindSpd.mps", "Wind Speed (m/s)", 0.0, 0.00001, 6.0, 1.0, 0.1),
 	Static_Feature("slope.deg", "Slope (degrees)", 0.0, 0.00001, 45.0, 5.0, 0.5),
-	Static_Feature("width.meters", "Width (m)", 0.5, 0.5, 20.0, 2.6, 0.1),
+	Static_Feature("width.meters", "Width (m)", 0.5, 0.5, 100.0, 2.6, 0.5),
 ]
 
 #Modules borrowed from Google
@@ -120,7 +120,6 @@ def get_config() -> cd.ConfigDict:
 
   return cfg
 
-
 def get_unnorm_pred_batch(
     cfg: cd.ConfigDict,
     df: pds.DataFrame,
@@ -175,7 +174,7 @@ def setup_data_columns(cfg: cd.ConfigDict):
       'log':  Use the log values.
   """
   if cfg.data.f_mode == 'unit':
-    print('Setting feature config to use unit features.')
+    #print('Setting feature config to use unit features.')
     cfg.data.static_features = (
         'Angle.deg',
         'FL(m)',
@@ -187,7 +186,7 @@ def setup_data_columns(cfg: cd.ConfigDict):
         'width.meters',
     )
   elif cfg.data.f_mode == 'unitless':
-    print('Setting feature config to use unitless features.')
+    #print('Setting feature config to use unitless features.')
     cfg.data.static_features = (
         'd*',
         'a*',
@@ -204,11 +203,11 @@ def setup_data_columns(cfg: cd.ConfigDict):
     raise ValueError('Unknown f_mode: ', f_mode)
 
   if cfg.data.l_mode == 'norm':
-    print('Setting up config to use norm labels.')
+    #print('Setting up config to use norm labels.')
     cfg.data.dynamic_feature = 'Distance.m'
     cfg.data.dynamic_label = 'Temp.C'
   elif cfg.data.l_mode == 'log':
-    print('Setting up config to use log labels.')
+    #print('Setting up config to use log labels.')
     cfg.data.dynamic_feature = 'ln(dist)'
     cfg.data.dynamic_label = 'ln(Temp.C)'
   else:
@@ -262,6 +261,7 @@ def get_selected_burn_data(cfg, burn_selection):
         stat_pred_list.append(np.exp(stat_pred))
         
     return x_value_list, true_values, ml_pred, stat_pred_list
+
     
 def calculate_error_for_test_burns(data, burn_selection, true_values, ml_pred, stat_pred_list):
     data_1 = data_1 = data[data["burn"]==burn_selection]
@@ -308,6 +308,7 @@ def generate_level_variable_input_valuesII(level_variable : Static_Feature, slid
         val += step
     return level_variable_input_values
   
+
 def get_x_axis_points(x_range_min, x_range_max, x_value_sample_count):
 	'''
 	Handles case of user selected domain
@@ -324,24 +325,32 @@ def get_x_axis_points(x_range_min, x_range_max, x_value_sample_count):
 	return x_axis_points
 
 def combine_prediction_inputs(level_var_input_values, slider_values, level_variable: Static_Feature):
-	'''
-	Returns a list of dicts, where each dict is of length {number of static features}
-	and the level variable that has been user-selected is replaced
-	by the ten level_var_input_values obtained from generate_level_variable_input_values
- 
-	Inputs:
- 	level_var_input_values: list of 10 values for selected level_variable
-  	slider_values: list of user-selected values for static inputs
-    level_variable: the static_feature that was selected by the user to be the level_variable
-   
-	Returns: list of dicts of slider values with different input variable values to be used to make predictions
     '''
-	prediction_inputs = []
-	for val in level_var_input_values:
-		slider_values_copy = slider_values.copy()
-		slider_values_copy[level_variable.short_name] = val
-		prediction_inputs.append(slider_values_copy)
-	return prediction_inputs
+    Returns a list of dicts, where each dict is of length {number of static features}
+    and the level variable that has been user-selected is replaced
+    by the ten level_var_input_values obtained from generate_level_variable_input_values
+
+    Inputs:
+    level_var_input_values: list of 10 values for selected level_variable
+    slider_values: list of user-selected values for static inputs
+    level_variable: the static_feature that was selected by the user to be the level_variable
+
+    Returns: list of dicts of slider values with different input variable values to be used to make predictions
+    '''
+    prediction_inputs = []
+    for val in level_var_input_values:
+        slider_values_copy = slider_values.copy()
+        slider_values_copy[level_variable.short_name] = val
+        slider_values_copy["FL(m)"] = calculate_fl_from_sliders(slider_values_copy["Intensity.kwm"], slider_values_copy["FlameDepth.m"])
+        slider_values_copy["FlameVel.mps"] = calculate_flamevel_from_sliders(slider_values_copy["Intensity.kwm"])
+        prediction_inputs.append(slider_values_copy)
+    return prediction_inputs
+
+def calculate_fl_from_sliders(intensity, fzdepth):
+    return 0.0105*intensity**0.774/fzdepth**0.161
+
+def calculate_flamevel_from_sliders(intensity):
+    return ((2*9.81*intensity*1000)/(1.6141*1007*300))**(1/3)
 
 def order_pred_input_dict(prediction_input_dict) -> list:
 	'''
@@ -499,7 +508,7 @@ def distance_aspect_ratio_interact(x, intensity, fzdepth, fzwidth):
     return (normalized_distance_term(x, intensity, fzdepth)*aspect_ratio_term(fzdepth, fzwidth))
 
 def front_orientation_angle(windspeed, intensity, fzdepth, slope, angle):
-    return np.cos(np.radians(angle) / 2)**(wind_term(windspeed, intensity, fzdepth)+slope_term(slope))
+    return np.cos(np.radians(angle)/ 2)**(wind_term(windspeed, intensity, fzdepth)+slope_term(slope))
 
 def calculate_ln_temp(x, intensity, slope, angle, windspeed, fzdepth, fzwidth):
     '''
@@ -536,50 +545,50 @@ def calculate_ln_temp(x, intensity, slope, angle, windspeed, fzdepth, fzwidth):
     )
     return ln_temp
 
-def average_level_variable(level_variable : Static_Feature ):
-    '''
-    for averaging the statistical model input across its range when that variable is selected as the level variable. 
-    without this, the statistical model will use the greyed out slider variable when that input is the level variable
-    which is not preferable
-    '''
-    max = level_variable.get_max()
-    min = level_variable.get_min()
-    return (max+min)/2
+# def average_level_variable(level_variable : Static_Feature ):
+#     '''
+#     for averaging the statistical model input across its range when that variable is selected as the level variable. 
+#     without this, the statistical model will use the greyed out slider variable when that input is the level variable
+#     which is not preferable
+#     '''
+#     max = level_variable.get_max()
+#     min = level_variable.get_min()
+#     return (max+min)/2
 
-def alter_slider_for_stat_plot(slider_values: dict, level_variable ):
-	'''
-    unnecessary now that we are not disabling the sliders. This was originally meant to 
-	altering slider_values in this function and so that slider_values elsewhere is not mutated
-	'''	
-	slider_values_copy = slider_values.copy()
-	for slider_value in slider_values_copy.keys():
-		if slider_value == level_variable.short_name:
-			slider_values_copy[slider_value] = average_level_variable(level_variable )
+# def alter_slider_for_stat_plot(slider_values: dict, level_variable ):
+# 	'''
+#     unnecessary now that we are not disabling the sliders. This was originally meant to 
+# 	altering slider_values in this function and so that slider_values elsewhere is not mutated
+# 	'''	
+# 	slider_values_copy = slider_values.copy()
+# 	for slider_value in slider_values_copy.keys():
+# 		if slider_value == level_variable.short_name:
+# 			slider_values_copy[slider_value] = average_level_variable(level_variable )
    
-	return slider_values_copy
+# 	return slider_values_copy
 
 def filter_high_temps(pred_set: tuple):
 	'''
  	for filtering all temps over 1000 C in plot outputs
 	### Change filter temp in this function
 	'''
-	#making the tuple a list so that values can be assigned
+	#making the tuple a list so that values can be assigned and then back to tuple
 	pred_set_list = list(pred_set)
 	for i in range(len(pred_set_list)):
 		if pred_set_list[i] >= 1000:
 			pred_set_list[i] = 1000
 	return tuple(pred_set_list)
 
-def fill_stat_y_set(x_points, altered_slider_values):
+def fill_stat_y_set(x_points, slider_values):
     '''
     fills stat_y_set, using the altered_slider_values dict and filters out temps for the flaming zone
     '''
-    intensity = altered_slider_values.get('Intensity.kwm') 
-    slope = altered_slider_values.get('slope.deg') 
-    angle = altered_slider_values.get('Angle.deg')
-    windspeed = altered_slider_values.get('WindSpd.mps')
-    fzdepth = altered_slider_values.get('FlameDepth.m')
-    fzwidth = altered_slider_values.get('width.meters')
+    intensity = slider_values.get('Intensity.kwm') 
+    slope = slider_values.get('slope.deg') 
+    angle = slider_values.get('Angle.deg')
+    windspeed = slider_values.get('WindSpd.mps')
+    fzdepth = slider_values.get('FlameDepth.m')
+    fzwidth = slider_values.get('width.meters')
     
     stat_y_set = []
     for x in x_points:
@@ -601,7 +610,7 @@ def graph_results(slider_values: dict, level_variable: Static_Feature, lnx, lny,
         level_var_values = generate_level_variable_input_valuesII(level_variable, slider_values)
         y_set = get_prediction_output(level_variable, level_var_values, slider_values, x_points)
 
-        stat_y_set = fill_stat_y_set(x_points, alter_slider_for_stat_plot(slider_values, level_variable)) 
+        stat_y_set = fill_stat_y_set(x_points, slider_values) 
         #create line
         fig.add_trace(go.Scatter(x=x_points, y=y_set[0].tolist(), name=f"Matches Statistical Model: {level_var_values[0]:.2f}", line=dict(color = 'black', dash='dash')))
         if plot_w_level_variables:
@@ -653,11 +662,12 @@ def graph_results(slider_values: dict, level_variable: Static_Feature, lnx, lny,
     return return_list
 
 def get_level_variable_index(selected_display_name):
-	i = 0
-	for static_feature in STATIC_FEATURE_LOOKUP:
-		if static_feature.display_name == selected_display_name:
-			return i;
-		i += 1
+    i = 0
+    STATIC_FEATURE_LOOKUP_copy = STATIC_FEATURE_LOOKUP.copy()
+    for static_feature in STATIC_FEATURE_LOOKUP_copy:
+        if static_feature.display_name == selected_display_name:
+            return i;
+        i += 1
 
 def get_all_display_names():
 	display_names = [feature.display_name for feature in STATIC_FEATURE_LOOKUP]
@@ -694,6 +704,9 @@ def create_gui():
     row2 = col2, col3
 
     display_names = get_all_display_names()
+    
+    display_names.remove("Flame Length (m)")
+    display_names.remove("Flame Velocity (m/s)")
 
     with col0:
         burns_list = get_burn_names(get_csv_data(select_cfg()))
@@ -701,9 +714,8 @@ def create_gui():
         current_selection_index = get_level_variable_index(st.session_state.get("level_var", "Angle (degrees)"))
         plot_w_level_variables = st.toggle("Plot Showing Level Variables", value = st.session_state.get("plot_w_level_variables", True), key = "plot_w_level_variables", disabled = burn_lookup_mode)
         view_statistical_model = st.toggle("View Statistical Model", value = st.session_state.get("view_statistical_model", True), key = "view_statistical_model", disabled= burn_lookup_mode)
-        level_var_display_name = st.selectbox("Level Variable", display_names, current_selection_index, key="level_var", disabled = burn_lookup_mode)
+        level_var_display_name = st.selectbox("Level Variable", display_names, key="level_var", disabled = burn_lookup_mode)
         level_variable = get_static_feature_from_display_name(level_var_display_name)
-        make_st_slider("width.meters", burn_lookup_mode)
         make_st_slider("slope.deg", burn_lookup_mode)
         make_st_slider("Angle.deg", burn_lookup_mode)
         
@@ -719,11 +731,12 @@ def create_gui():
             st.markdown(f"Average Error of ML Predictions: :red[{avg_ml_error:.4g}]")
             st.markdown(f"Average Error of Statistical Model Predictions: :red[{avg_stat_error:.4g}]")
         else:
-            make_st_slider("FL(m)", burn_lookup_mode)
+            # make_st_slider("FL(m)", burn_lookup_mode)
+            make_st_slider("width.meters", burn_lookup_mode)
+            make_st_slider("FlameDepth.m", burn_lookup_mode)
             make_st_slider("Intensity.kwm", burn_lookup_mode)
             make_st_slider("WindSpd.mps", burn_lookup_mode)
-            make_st_slider("FlameDepth.m", burn_lookup_mode)
-            make_st_slider("FlameVel.mps", burn_lookup_mode)
+            # make_st_slider("FlameVel.mps", burn_lookup_mode)
     with col2:
         log_x = st.toggle("Log X-Axis", value=st.session_state.get("log_x", False), key="log_x")
         log_y = st.toggle("Log Y-Axis", value=st.session_state.get("log_y", False), key="log_y")
@@ -740,13 +753,18 @@ def create_gui():
                 slider_values[static_feature.short_name] = static_feature.default
         else:
             for static_feature in STATIC_FEATURE_LOOKUP:
-                slider_values[static_feature.short_name] = st.session_state[static_feature.short_name]
+                # slider_values[static_feature.short_name] = st.session_state[static_feature.short_name]
+                try:
+                    slider_values[static_feature.short_name] = st.session_state[static_feature.short_name]
+                except KeyError:
+                    slider_values[static_feature.short_name] = 0
         
     #in case burn_selection doesn't exist..
     if not burn_lookup_mode:
         burn_selection = None
         avg_ml_error = None
         avg_stat_error = None
+        
     res = graph_results(slider_values, level_variable, log_x, log_y, xr_min, xr_max, x_value_sample_count, view_statistical_model, plot_w_level_variables, burn_lookup_mode, burn_selection, avg_ml_error, avg_stat_error)
 
     dat = np.array(res)
