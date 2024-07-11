@@ -600,6 +600,7 @@ def fill_stat_y_set(x_points, slider_values):
 
 def graph_results(slider_values: dict, level_variable: Static_Feature, lnx, lny, x_range_min, x_range_max, x_value_sample_count, view_statistical_model, plot_w_level_variables, burn_lookup_mode, burn_selection, avg_ml_error, avg_stat_error):
     fig = go.Figure()
+    
     if burn_lookup_mode:
         x_value_list, true_values, ml_pred, stat_pred_list = get_selected_burn_data(select_cfg(), burn_selection)
         fig.add_trace(go.Scatter(x = x_value_list, y= true_values, name = "True Burn Values", line=dict(dash='dashdot')))
@@ -699,7 +700,7 @@ def create_gui():
     st.title("Carousel ML Gui")
 
     col0, col1 = st.columns(2, gap="medium")
-    col2, col3, col4, col5  = st.columns(4, gap="large")
+    col2, col3, col4  = st.columns(3, gap="large")
     row1 = col0, col1
     row2 = col2, col3
 
@@ -711,7 +712,7 @@ def create_gui():
     with col0:
         burns_list = get_burn_names(get_csv_data(select_cfg()))
         burn_lookup_mode = st.toggle("Burn Lookup Mode", value = st.session_state.get("burn_lookup_mode", False), key = "burn_lookup_mode")
-        current_selection_index = get_level_variable_index(st.session_state.get("level_var", "Angle (degrees)"))
+        # current_selection_index = get_level_variable_index(st.session_state.get("level_var", "Angle (degrees)"))
         plot_w_level_variables = st.toggle("Plot Showing Level Variables", value = st.session_state.get("plot_w_level_variables", True), key = "plot_w_level_variables", disabled = burn_lookup_mode)
         view_statistical_model = st.toggle("View Statistical Model", value = st.session_state.get("view_statistical_model", True), key = "view_statistical_model", disabled= burn_lookup_mode)
         level_var_display_name = st.selectbox("Level Variable", display_names, key="level_var", disabled = burn_lookup_mode)
@@ -736,15 +737,21 @@ def create_gui():
             make_st_slider("FlameDepth.m", burn_lookup_mode)
             make_st_slider("Intensity.kwm", burn_lookup_mode)
             make_st_slider("WindSpd.mps", burn_lookup_mode)
+            fl = calculate_fl_from_sliders(intensity=st.session_state.get("Intensity.kwm"), fzdepth=st.session_state.get("FlameDepth.m"))
             # make_st_slider("FlameVel.mps", burn_lookup_mode)
     with col2:
-        log_x = st.toggle("Log X-Axis", value=st.session_state.get("log_x", False), key="log_x")
-        log_y = st.toggle("Log Y-Axis", value=st.session_state.get("log_y", False), key="log_y")
-        x_value_sample_count = st.slider("Number of X-value Samples", 50, 500, st.session_state.get("x_value_sample_count", 200), 10, key="x_value_sample_count", disabled= burn_lookup_mode)
+        if not burn_lookup_mode:
+            st.markdown(f"Flamelength for Selected Inputs: :red[{fl:.3g}] (m)")
     with col3:
-        xr_min = st.number_input("Minimum of X-axis Sample Range", 0.0001, 1.25, float(st.session_state.get("xr_min", 0.0001)), key="xr_min", disabled= burn_lookup_mode)
-        xr_max = st.number_input("Maximum of X-axis Sample Range", 0.0001, 1.25, float(st.session_state.get("xr_max", 1.25)), key="xr_max", disabled= burn_lookup_mode)
-
+        with st.expander("Graph Axis Options",expanded=False):
+            # with col2:
+            log_x = st.toggle("Log X-Axis", value=st.session_state.get("log_x", False), key="log_x")
+            log_y = st.toggle("Log Y-Axis", value=st.session_state.get("log_y", False), key="log_y")
+            x_value_sample_count = st.slider("Number of X-value Samples", 50, 500, st.session_state.get("x_value_sample_count", 200), 10, key="x_value_sample_count", disabled= burn_lookup_mode)
+            # with col3:
+            xr_min = st.number_input("Minimum of X-axis Sample Range", 0.0001, 1.25, float(st.session_state.get("xr_min", 0.0001)), key="xr_min", disabled= burn_lookup_mode)
+            xr_max = st.number_input("Maximum of X-axis Sample Range", 0.0001, 1.25, float(st.session_state.get("xr_max", 1.25)), key="xr_max", disabled= burn_lookup_mode)
+        
     slider_values = {}
 	# code just for debugging headlessly
     if not burn_lookup_mode:
@@ -783,11 +790,11 @@ def create_gui():
         return df.to_csv().encode('utf-8')
 
     new_file = convert_df(udf)
-
     with col4:
-        filename = st.text_input("Enter name of output file: ", "enter filename + .csv", key="filename")
-        button = st.button("Download Data to CSV")
-        if button:
-            st.download_button("Download", data=new_file, file_name=str(filename), mime='text/csv')
+        with st.expander("Download Options", expanded=False):
+            filename = st.text_input("Enter name of output file: ", "enter filename + .csv", key="filename")
+            button = st.button("Download Data to CSV")
+            if button:
+                st.download_button("Download", data=new_file, file_name=str(filename), mime='text/csv')
 
 create_gui()
